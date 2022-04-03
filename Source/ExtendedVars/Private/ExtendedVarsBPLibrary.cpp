@@ -62,7 +62,7 @@ TArray<FString> UExtendedVarsBPLibrary::FStringSort(TArray<FString> TargetArray,
     return SortedArray;
 }
 
-int32 UExtendedVarsBPLibrary::GetInt32PlaceFamily(int32 TargetInteger)
+int32 UExtendedVarsBPLibrary::Int32PlaceFamily(int32 TargetInteger)
 {
     return FMath::Pow(10, ((FString::FromInt(TargetInteger).Len())-1));
 }
@@ -70,7 +70,7 @@ int32 UExtendedVarsBPLibrary::GetInt32PlaceFamily(int32 TargetInteger)
 int32 UExtendedVarsBPLibrary::Int32TruncateToWholeBig(int32 TargetInteger)
 {
     float Remainder;
-    UKismetMathLibrary::FMod(TargetInteger, UExtendedVarsBPLibrary::GetInt32PlaceFamily(TargetInteger), Remainder);
+    UKismetMathLibrary::FMod(TargetInteger, UExtendedVarsBPLibrary::Int32PlaceFamily(TargetInteger), Remainder);
 
     if (Remainder != 0)
     {
@@ -151,11 +151,27 @@ TArray<int32> UExtendedVarsBPLibrary::Int32Sort(TArray<int32> TargetArray, bool 
     return SortedArray;
 }
 
-int32 UExtendedVarsBPLibrary::FloatFractionCount(float TargetFloat, FString& FractionString)
+int32 UExtendedVarsBPLibrary::FloatFractionCount(float TargetFloat)
 {
+    FString FractionString;
     (FString::SanitizeFloat(UKismetMathLibrary::Fraction(TargetFloat))).Split(TEXT("."), NULL, &FractionString, ESearchCase::IgnoreCase, ESearchDir::FromStart);
    
     return FractionString.Len();
+}
+
+float UExtendedVarsBPLibrary::FloatRoundNext(float TargetFloat, int32 Decimal)
+{
+    int32 FractionCount = UExtendedVarsBPLibrary::FloatFractionCount(TargetFloat);
+    
+    if (FractionCount > Decimal)
+    {
+        return (FMath::TruncToInt(TargetFloat * FMath::Pow(10, Decimal)) + 1) / FMath::Pow(10, Decimal);
+    }
+
+    else
+    {
+        return TargetFloat;
+    }
 }
 
 TArray<float> UExtendedVarsBPLibrary::FloatSort(TArray<float> TargetArray, bool bIsDescending)
@@ -173,6 +189,29 @@ TArray<float> UExtendedVarsBPLibrary::FloatSort(TArray<float> TargetArray, bool 
     else
     {
         SortedArray.Sort([](const float Value1, const float Value2)
+            {
+                return Value1 > Value2;
+            });
+    }
+
+    return SortedArray;
+}
+
+TArray<FDateTime> UExtendedVarsBPLibrary::TimeSort(TArray<FDateTime> TargetArray, bool bIsDescending)
+{
+    TArray<FDateTime> SortedArray = TargetArray;
+
+    if (bIsDescending == true)
+    {
+        SortedArray.Sort([](const FDateTime Value1, const FDateTime Value2)
+            {
+                return Value1 < Value2;
+            });
+    }
+
+    else
+    {
+        SortedArray.Sort([](const FDateTime Value1, const FDateTime Value2)
             {
                 return Value1 > Value2;
             });
