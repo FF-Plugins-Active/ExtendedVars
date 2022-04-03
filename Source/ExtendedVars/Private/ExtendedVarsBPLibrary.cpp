@@ -39,6 +39,29 @@ uint8 UExtendedVarsBPLibrary::FStringToByte(const FString TargetString)
     return 0;
 }
 
+TArray<FString> UExtendedVarsBPLibrary::FStringSort(TArray<FString> TargetArray, bool bIsDescending)
+{
+    TArray<FString> SortedArray = TargetArray;
+
+    if (bIsDescending == true)
+    {
+        SortedArray.Sort([](const FString Value1, const FString Value2)
+            {
+                return Value1 < Value2;
+            });
+    }
+
+    else
+    {
+        SortedArray.Sort([](const FString Value1, const FString Value2)
+            {
+                return Value1 > Value2;
+            });
+    }
+
+    return SortedArray;
+}
+
 int32 UExtendedVarsBPLibrary::GetInt32PlaceFamily(int32 TargetInteger)
 {
     return FMath::Pow(10, ((FString::FromInt(TargetInteger).Len())-1));
@@ -86,7 +109,7 @@ int32 UExtendedVarsBPLibrary::Int32TruncateToWholeSmall(int32 TargetInteger)
     }
 }
 
-void UExtendedVarsBPLibrary::Int32ToGraphics(EGraphicsType GraphicsType, int32 ValueTarget, int32 ValueFull, float& Scale, float& UnitValue)
+void UExtendedVarsBPLibrary::Int32ToGraphics(EGraphicsType GraphicsType, int32 TargetInteger, int32 FullInteger, float& Scale, float& UnitValue)
 {
     int32 FullScale;
 
@@ -100,7 +123,60 @@ void UExtendedVarsBPLibrary::Int32ToGraphics(EGraphicsType GraphicsType, int32 V
             break;
     }
     
-    Scale = (ValueTarget * FullScale) / ValueFull;
+    Scale = (TargetInteger * FullScale) / FullInteger;
     
     UnitValue = Scale / FullScale;
+}
+
+TArray<int32> UExtendedVarsBPLibrary::Int32Sort(TArray<int32> TargetArray, bool bIsDescending)
+{
+    TArray<int32> SortedArray = TargetArray;
+
+    if (bIsDescending == true)
+    {
+        SortedArray.Sort([](const int32 Value1, const int32 Value2)
+            {
+                return Value1 < Value2;
+            });
+    }
+
+    else
+    {
+        SortedArray.Sort([](const int32 Value1, const int32 Value2)
+            {
+                return Value1 > Value2;
+            });
+    }
+
+    return SortedArray;
+}
+
+int32 UExtendedVarsBPLibrary::FloatFractionCount(float TargetFloat, FString& FractionString)
+{
+    (FString::SanitizeFloat(UKismetMathLibrary::Fraction(TargetFloat))).Split(TEXT("."), NULL, &FractionString, ESearchCase::IgnoreCase, ESearchDir::FromStart);
+   
+    return FractionString.Len();
+}
+
+TArray<float> UExtendedVarsBPLibrary::FloatSort(TArray<float> TargetArray, bool bIsDescending)
+{
+    TArray<float> SortedArray = TargetArray;
+
+    if (bIsDescending == true)
+    {
+        SortedArray.Sort([](const float Value1, const float Value2)
+            {
+                return Value1 < Value2;
+            });
+    }
+
+    else
+    {
+        SortedArray.Sort([](const float Value1, const float Value2)
+            {
+                return Value1 > Value2;
+            });
+    }
+
+    return SortedArray;
 }

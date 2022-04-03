@@ -35,22 +35,34 @@ class UExtendedVarsBPLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_UCLASS_BODY()
 
-	UFUNCTION(BlueprintPure, meta = (DisplayName = "Int64 To FString", Keywords = "int64, fstring, convert"), Category = "Extended Variables|String")
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Int64 To FString", Keywords = "int64, string, fstring, convert"), Category = "Extended Variables|String")
 	static FString Int64ToFString(int64 TargetInt64);
 
-	UFUNCTION(BlueprintPure, meta = (DisplayName = "FString to Byte", Keywords = "byte, fstring, convert"), Category = "Extended Variables|String")
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "FString to Byte", Keywords = "byte, string, fstring, convert"), Category = "Extended Variables|String")
 	static uint8 FStringToByte(const FString TargetString);
 
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Sort FStrings", ToolTip = "Description.", Keywords = "sort, string, fstring, ascending, descending"), Category = "Extended Variables|String")
+	static TArray<FString> FStringSort(TArray<FString> TargetArray, bool bIsDescending);
+
 	UFUNCTION(BlueprintPure, meta = (DisplayName = "Get Int32 Place Family", Keywords = "int32, get, place, family"), Category = "Extended Variables|Integer")
-	static int32 GetInt32PlaceFamily(int32 Integer);
+	static int32 GetInt32PlaceFamily(int32 TargetInteger);
 
 	UFUNCTION(BlueprintPure, meta = (DisplayName = "Int32 Truncate to Whole (Big)", Keywords = "int32, truncate, truncation, full, whole, big"), Category = "Extended Variables|Integer")
-	static int32 Int32TruncateToWholeBig(int32 Integer);
+	static int32 Int32TruncateToWholeBig(int32 TargetInteger);
 
 	UFUNCTION(BlueprintPure, meta = (DisplayName = "Int32 Truncate to Whole (Small)", Keywords = "int32, truncate, truncation, full, whole, small"), Category = "Extended Variables|Integer")
-	static int32 Int32TruncateToWholeSmall(int32 Integer);
+	static int32 Int32TruncateToWholeSmall(int32 TargetInteger);
 
 	UFUNCTION(BlueprintPure, meta = (DisplayName = "Int32 To Graphics", ToolTip = "Unit Value gives scale as a float between 0 and 1.", Keywords = "int32, graphics, pie"), Category = "Extended Variables|Graphics")
-	static void Int32ToGraphics(EGraphicsType GraphicsType, int32 ValueTarget, int32 ValueFull, float& Scale, float& UnitValue);
+	static void Int32ToGraphics(EGraphicsType GraphicsType, int32 TargetInteger, int32 FullInteger, float& Scale, float& UnitValue);
+
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Sort Integers", ToolTip = "Description.", Keywords = "sort, int32, ascending, descending"), Category = "Extended Variables|Integer")
+	static TArray<int32> Int32Sort(TArray<int32> TargetArray, bool bIsDescending);
+
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Get Fraction Count", ToolTip = "Description.", Keywords = "float, get, fraction, count"), Category = "Extended Variables|Float")
+	static int32 FloatFractionCount(float TargetFloat, FString& FractionString);
+
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Sort Floats", ToolTip = "Description.", Keywords = "sort, float, ascending, descending"), Category = "Extended Variables|Float")
+	static TArray<float> FloatSort(TArray<float> TargetArray, bool bIsDescending);
 
 };
