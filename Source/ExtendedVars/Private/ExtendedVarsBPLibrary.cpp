@@ -3,6 +3,7 @@
 #include "ExtendedVarsBPLibrary.h"
 #include "ExtendedVars.h"
 
+// UE Includes.
 #include "Kismet/KismetStringLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
 
@@ -111,7 +112,7 @@ int32 UExtendedVarsBPLibrary::Int32TruncateToWholeSmall(int32 TargetInteger)
 
 void UExtendedVarsBPLibrary::Int32ToGraphics(EGraphicsType GraphicsType, int32 TargetInteger, int32 FullInteger, float& Scale, float& UnitValue)
 {
-    int32 FullScale;
+    int32 FullScale = 0;
 
     switch (GraphicsType)
     {
