@@ -65,12 +65,17 @@ TArray<FString> UExtendedVarsBPLibrary::FStringSort(TArray<FString> TargetArray,
 
 int32 UExtendedVarsBPLibrary::Int32PlaceFamily(int32 TargetInteger)
 {
-    return FMath::Pow(10, ((FString::FromInt(TargetInteger).Len())-1));
+    /*
+    10 power integer character lenght minus 1 will equal its place family.
+    For example to find 10's place family, 10^2(Char Lenght) - 1 = 10. 10's place family will 10.
+    */
+    
+    return (int32)FMath::Pow(10.0, (double)((FString::FromInt(TargetInteger).Len()) - 1));
 }
 
 int32 UExtendedVarsBPLibrary::Int32TruncateToWholeBig(int32 TargetInteger)
 {
-    float Remainder;
+    double Remainder;
     UKismetMathLibrary::FMod(TargetInteger, UExtendedVarsBPLibrary::Int32PlaceFamily(TargetInteger), Remainder);
 
     if (Remainder != 0)
@@ -78,7 +83,7 @@ int32 UExtendedVarsBPLibrary::Int32TruncateToWholeBig(int32 TargetInteger)
         const FString IntString = FString::FromInt(TargetInteger);
 
         int32 PlaceDigit = FCString::Atoi(*(UKismetStringLibrary::GetCharacterArrayFromString(IntString)[0]));
-        int32 PlaceFamily = FMath::Pow(10, ((IntString.Len()) - 1));
+        float PlaceFamily = (int32)FMath::Pow(10.0, (double)((IntString.Len()) - 1));
 
         return PlaceFamily * (PlaceDigit + 1);
     }
@@ -91,7 +96,7 @@ int32 UExtendedVarsBPLibrary::Int32TruncateToWholeBig(int32 TargetInteger)
 
 int32 UExtendedVarsBPLibrary::Int32TruncateToWholeSmall(int32 TargetInteger)
 {
-    float Remainder;
+    double Remainder;
     UKismetMathLibrary::FMod(TargetInteger, 10, Remainder);
     
     if (Remainder != 0)
@@ -160,13 +165,13 @@ int32 UExtendedVarsBPLibrary::FloatFractionCount(float TargetFloat)
     return FractionString.Len();
 }
 
-float UExtendedVarsBPLibrary::FloatRoundNext(float TargetFloat, int32 Decimal)
+float UExtendedVarsBPLibrary::FloatRoundNext(float TargetFloat, double Decimal)
 {
     int32 FractionCount = UExtendedVarsBPLibrary::FloatFractionCount(TargetFloat);
     
     if (FractionCount > Decimal)
     {
-        return (FMath::TruncToInt(TargetFloat * FMath::Pow(10, Decimal)) + 1) / FMath::Pow(10, Decimal);
+        return (FMath::TruncToInt(TargetFloat * FMath::Pow(10.0, Decimal)) + 1) / FMath::Pow(10.0, Decimal);
     }
 
     else

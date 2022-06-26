@@ -23,7 +23,7 @@
 *	https://wiki.unrealengine.com/Custom_Blueprint_Node_Creation
 */
 
-UENUM()
+UENUM(BlueprintType)
 enum class EGraphicsType : uint8
 {
 	ChartPie	UMETA(DisplayName = "Pie Chart"),
@@ -63,7 +63,7 @@ class UExtendedVarsBPLibrary : public UBlueprintFunctionLibrary
 	static int32 FloatFractionCount(float TargetFloat);
 
 	UFUNCTION(BlueprintPure, meta = (DisplayName = "Round Next Float", ToolTip = "Description.", Keywords = "float, round, next"), Category = "Extended Variables|Float")
-	static float FloatRoundNext(float TargetFloat, int32 Decimal);
+	static float FloatRoundNext(float TargetFloat, double Decimal);
 
 	UFUNCTION(BlueprintPure, meta = (DisplayName = "Sort Floats", ToolTip = "Description.", Keywords = "sort, float, ascending, descending"), Category = "Extended Variables|Float")
 	static TArray<float> FloatSort(TArray<float> TargetArray, bool bIsDescending);
