@@ -35,14 +35,29 @@ class UExtendedVarsBPLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_UCLASS_BODY()
 
+	// Bytes Group
+
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Bytes Array To String", Keywords = "http, web, server, api, bind, route, post"), Category = "Extended Variables|Bytes")
+	static FString BytesArrayToString(TArray<uint8> In_Bytes);
+		
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "String to Bytes", Keywords = "string, to, bytes"), Category = "Extended|Bytes")
+	static TArray<uint8> StringToBytesArray(FString In_String);
+	
+	// String Group
+
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Base64 URL to String", ToolTip = "Description.", Keywords = "sort, string, fstring, ascending, descending"), Category = "Extended Variables|String")
+	static bool Base64ToString(FString In_Base64, FString& OutDecoded);
+		
 	UFUNCTION(BlueprintPure, meta = (DisplayName = "Int64 To FString", Keywords = "int64, string, fstring, convert"), Category = "Extended Variables|String")
-	static FString Int64ToFString(int64 TargetInt64);
-
-	UFUNCTION(BlueprintPure, meta = (DisplayName = "FString to Byte", Keywords = "byte, string, fstring, convert"), Category = "Extended Variables|String")
-	static uint8 FStringToByte(const FString TargetString);
-
+	static FString Int64ToString(int64 TargetInt64);
+		
 	UFUNCTION(BlueprintPure, meta = (DisplayName = "Sort FStrings", ToolTip = "Description.", Keywords = "sort, string, fstring, ascending, descending"), Category = "Extended Variables|String")
-	static TArray<FString> FStringSort(TArray<FString> TargetArray, bool bIsDescending);
+	static TArray<FString> StringSort(TArray<FString> TargetArray, bool bIsDescending);
+
+	// Math Group | Integer
+
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Number to Byte", ToolTip = "It converts number to a byte form.", Keywords = "byte, string, fstring, convert"), Category = "Extended Variables|Math")
+	static uint8 NumberToByte(int32 In_Number);
 
 	UFUNCTION(BlueprintPure, meta = (DisplayName = "Get Int32 Place Family", Keywords = "int32, get, place, family"), Category = "Extended Variables|Integer")
 	static int32 Int32PlaceFamily(int32 TargetInteger);
@@ -53,11 +68,13 @@ class UExtendedVarsBPLibrary : public UBlueprintFunctionLibrary
 	UFUNCTION(BlueprintPure, meta = (DisplayName = "Int32 Truncate to Whole (Small)", Keywords = "int32, truncate, truncation, full, whole, small"), Category = "Extended Variables|Integer")
 	static int32 Int32TruncateToWholeSmall(int32 TargetInteger);
 
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Sort Integers", ToolTip = "Description.", Keywords = "sort, int32, ascending, descending"), Category = "Extended Variables|Integer")
+	static TArray<int32> Int32Sort(TArray<int32> TargetArray, bool bIsDescending);
+
 	UFUNCTION(BlueprintPure, meta = (DisplayName = "Int32 To Graphics", ToolTip = "Unit Value gives scale as a float between 0 and 1.", Keywords = "int32, graphics, pie"), Category = "Extended Variables|Integer")
 	static void Int32ToGraphics(EGraphicsType GraphicsType, int32 TargetInteger, int32 FullInteger, float& Scale, float& UnitValue);
 
-	UFUNCTION(BlueprintPure, meta = (DisplayName = "Sort Integers", ToolTip = "Description.", Keywords = "sort, int32, ascending, descending"), Category = "Extended Variables|Integer")
-	static TArray<int32> Int32Sort(TArray<int32> TargetArray, bool bIsDescending);
+	// Math Group | Float
 
 	UFUNCTION(BlueprintPure, meta = (DisplayName = "Get Fraction Count", ToolTip = "Description.", Keywords = "float, get, fraction, count"), Category = "Extended Variables|Float")
 	static int32 FloatFractionCount(float TargetFloat);
@@ -67,6 +84,8 @@ class UExtendedVarsBPLibrary : public UBlueprintFunctionLibrary
 
 	UFUNCTION(BlueprintPure, meta = (DisplayName = "Sort Floats", ToolTip = "Description.", Keywords = "sort, float, ascending, descending"), Category = "Extended Variables|Float")
 	static TArray<float> FloatSort(TArray<float> TargetArray, bool bIsDescending);
+	
+	// Time Group
 
 	UFUNCTION(BlueprintPure, meta = (DisplayName = "Sort Times", ToolTip = "Description.", Keywords = "sort, times, ascending, descending"), Category = "Extended Variables|Time")
 	static TArray<FDateTime> TimeSort(TArray<FDateTime> TargetArray, bool bIsDescending);

@@ -6,6 +6,7 @@
 // UE Includes.
 #include "Kismet/KismetStringLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Misc/Base64.h"
 
 UExtendedVarsBPLibrary::UExtendedVarsBPLibrary(const FObjectInitializer& ObjectInitializer)
 : Super(ObjectInitializer)
@@ -13,34 +14,54 @@ UExtendedVarsBPLibrary::UExtendedVarsBPLibrary(const FObjectInitializer& ObjectI
 
 }
 
-FString UExtendedVarsBPLibrary::Int64ToFString(int64 TargetInt64)
+// Bytes Group
+
+FString UExtendedVarsBPLibrary::BytesArrayToString(TArray<uint8> In_Bytes)
+{
+    if (In_Bytes.Num() > 0)
+    {
+        const std::string Body_String(reinterpret_cast<const char*>(In_Bytes.GetData()), In_Bytes.Num());
+        FString Body_FString = Body_String.c_str();
+
+        return Body_FString;
+    }
+
+    return "";
+}
+
+TArray<uint8> UExtendedVarsBPLibrary::StringToBytesArray(FString In_String)
+{
+    TArray<uint8> Array_Bytes;
+
+    if (In_String.IsEmpty() == true)
+    {
+        return Array_Bytes;
+    }
+
+    FTCHARToUTF8 Source = FTCHARToUTF8(In_String.GetCharArray().GetData());
+    Array_Bytes.Append((uint8*)Source.Get(), Source.Length());
+
+    return Array_Bytes;
+}
+
+// String Group
+
+bool UExtendedVarsBPLibrary::Base64ToString(FString In_Base64, FString& OutDecoded)
+{
+    if (In_Base64.IsEmpty() == true)
+    {
+        return false;
+    }
+
+    return FBase64::Decode(In_Base64, OutDecoded);
+}
+
+FString UExtendedVarsBPLibrary::Int64ToString(int64 TargetInt64)
 {
     return FString::Printf(TEXT("%llu"), TargetInt64);
 }
 
-uint8 UExtendedVarsBPLibrary::FStringToByte(const FString TargetString)
-{
-    int32 Number = FCString::Atoi(*TargetString);
-
-    if (Number >= 0 && Number <= 255)
-    {
-        return Number;
-    }
-
-    else if (Number < 0)
-    {
-        return 0;
-    }
-
-    else if (Number > 255)
-    {
-        return 255;
-    }
-
-    return 0;
-}
-
-TArray<FString> UExtendedVarsBPLibrary::FStringSort(TArray<FString> TargetArray, bool bIsDescending)
+TArray<FString> UExtendedVarsBPLibrary::StringSort(TArray<FString> TargetArray, bool bIsDescending)
 {
     TArray<FString> SortedArray = TargetArray;
 
@@ -61,6 +82,29 @@ TArray<FString> UExtendedVarsBPLibrary::FStringSort(TArray<FString> TargetArray,
     }
 
     return SortedArray;
+}
+
+// Math Group | Integer
+
+uint8 UExtendedVarsBPLibrary::NumberToByte(int32 In_Number)
+{
+
+    if (In_Number >= 0 && In_Number <= 255)
+    {
+        return In_Number;
+    }
+
+    else if (In_Number < 0)
+    {
+        return 0;
+    }
+
+    else if (In_Number > 255)
+    {
+        return 255;
+    }
+
+    return 0;
 }
 
 int32 UExtendedVarsBPLibrary::Int32PlaceFamily(int32 TargetInteger)
@@ -115,25 +159,6 @@ int32 UExtendedVarsBPLibrary::Int32TruncateToWholeSmall(int32 TargetInteger)
     }
 }
 
-void UExtendedVarsBPLibrary::Int32ToGraphics(EGraphicsType GraphicsType, int32 TargetInteger, int32 FullInteger, float& Scale, float& UnitValue)
-{
-    int32 FullScale = 0;
-
-    switch (GraphicsType)
-    {
-        case EGraphicsType::ChartPie:
-            FullScale = 360;
-            break;
-        case EGraphicsType::ChartBar:
-            FullScale = 100;
-            break;
-    }
-    
-    Scale = (TargetInteger * FullScale) / FullInteger;
-    
-    UnitValue = Scale / FullScale;
-}
-
 TArray<int32> UExtendedVarsBPLibrary::Int32Sort(TArray<int32> TargetArray, bool bIsDescending)
 {
     TArray<int32> SortedArray = TargetArray;
@@ -156,6 +181,27 @@ TArray<int32> UExtendedVarsBPLibrary::Int32Sort(TArray<int32> TargetArray, bool 
 
     return SortedArray;
 }
+
+void UExtendedVarsBPLibrary::Int32ToGraphics(EGraphicsType GraphicsType, int32 TargetInteger, int32 FullInteger, float& Scale, float& UnitValue)
+{
+    int32 FullScale = 0;
+
+    switch (GraphicsType)
+    {
+        case EGraphicsType::ChartPie:
+            FullScale = 360;
+            break;
+        case EGraphicsType::ChartBar:
+            FullScale = 100;
+            break;
+    }
+    
+    Scale = (TargetInteger * FullScale) / FullInteger;
+    
+    UnitValue = Scale / FullScale;
+}
+
+// Math Group | Float
 
 int32 UExtendedVarsBPLibrary::FloatFractionCount(float TargetFloat)
 {
@@ -202,6 +248,8 @@ TArray<float> UExtendedVarsBPLibrary::FloatSort(TArray<float> TargetArray, bool 
 
     return SortedArray;
 }
+
+// Time Group
 
 TArray<FDateTime> UExtendedVarsBPLibrary::TimeSort(TArray<FDateTime> TargetArray, bool bIsDescending)
 {
