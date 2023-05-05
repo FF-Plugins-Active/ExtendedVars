@@ -3,31 +3,20 @@
 #pragma once
 
 #include "Kismet/BlueprintFunctionLibrary.h"
+
+#include "Extended_Enums.h"
+
 #include "ExtendedVarsBPLibrary.generated.h"
 
-/* 
-*	Function library class.
-*	Each function in it is expected to be static and represents blueprint node that can be called in any blueprint.
-*
-*	When declaring function you can define metadata for the node. Key function specifiers will be BlueprintPure and BlueprintCallable.
-*	BlueprintPure - means the function does not affect the owning object in any way and thus creates a node without Exec pins.
-*	BlueprintCallable - makes a function which can be executed in Blueprints - Thus it has Exec pins.
-*	DisplayName - full name of the node, shown when you mouse over the node and in the blueprint drop down menu.
-*				Its lets you name the node using characters not allowed in C++ function names.
-*	CompactNodeTitle - the word(s) that appear on the node.
-*	Keywords -	the list of keywords that helps you to find node when you search for it using Blueprint drop-down menu. 
-*				Good example is "Print String" node which you can find also by using keyword "log".
-*	Category -	the category your node will be under in the Blueprint drop-down menu.
-*
-*	For more info on custom blueprint nodes visit documentation:
-*	https://wiki.unrealengine.com/Custom_Blueprint_Node_Creation
-*/
-
-UENUM(BlueprintType)
-enum class EGraphicsType : uint8
+UCLASS(BlueprintType)
+class EXTENDEDVARS_API UBytesObject : public UObject
 {
-	ChartPie	UMETA(DisplayName = "Pie Chart"),
-	ChartBar	UMETA(DisplayName = "Bar Chart"),
+	GENERATED_BODY()
+
+public:
+
+	TArray64<uint8> ByteArray;
+
 };
 
 UCLASS()
@@ -40,18 +29,24 @@ class UExtendedVarsBPLibrary : public UBlueprintFunctionLibrary
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Bytes Array To String", Keywords = "http, web, server, api, bind, route, post"), Category = "Extended Variables|Bytes")
 	static FString BytesArrayToString(TArray<uint8> In_Bytes);
 		
-	UFUNCTION(BlueprintPure, meta = (DisplayName = "String to Bytes", Keywords = "string, to, bytes"), Category = "Extended|Bytes")
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "String to Bytes", Keywords = "string, to, bytes"), Category = "Extended Variables|Bytes")
 	static TArray<uint8> StringToBytesArray(FString In_String);
+
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Read from Path", ToolTip = "You need to use absolute platform path.", Keywords = "read, load, path, bytes"), Category = "Extended Variables|Bytes")
+	static bool Read_From_Path(UBytesObject*& Out_Bytes_Object, FString In_Path);
+
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Bytes to Bytes Object", ToolTip = "", Keywords = "read, load, path"), Category = "Extended Variables|Bytes")
+	static bool BytesToBytesObject(UBytesObject*& Out_Bytes_Object, TArray<uint8> In_Bytes);
 	
 	// String Group
 
 	UFUNCTION(BlueprintPure, meta = (DisplayName = "Base64 URL to String", ToolTip = "Description.", Keywords = "sort, string, fstring, ascending, descending"), Category = "Extended Variables|String")
 	static bool Base64ToString(FString In_Base64, FString& OutDecoded);
 		
-	UFUNCTION(BlueprintPure, meta = (DisplayName = "Int64 To FString", Keywords = "int64, string, fstring, convert"), Category = "Extended Variables|String")
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Int64 To String", Keywords = "int64, string, fstring, convert"), Category = "Extended Variables|String")
 	static FString Int64ToString(int64 TargetInt64);
 		
-	UFUNCTION(BlueprintPure, meta = (DisplayName = "Sort FStrings", ToolTip = "Description.", Keywords = "sort, string, fstring, ascending, descending"), Category = "Extended Variables|String")
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Sort Strings", ToolTip = "Description.", Keywords = "sort, string, fstring, ascending, descending"), Category = "Extended Variables|String")
 	static TArray<FString> StringSort(TArray<FString> TargetArray, bool bIsDescending);
 
 	// Math Group | Integer
@@ -89,5 +84,13 @@ class UExtendedVarsBPLibrary : public UBlueprintFunctionLibrary
 
 	UFUNCTION(BlueprintPure, meta = (DisplayName = "Sort Times", ToolTip = "Description.", Keywords = "sort, times, ascending, descending"), Category = "Extended Variables|Time")
 	static TArray<FDateTime> TimeSort(TArray<FDateTime> TargetArray, bool bIsDescending);
+
+	// Render Group
+
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Widget To Texture Render Target 2D", Keywords = "texture, render, target, 2d, widget, convert"), Category = "Extended Variables|Converter")
+	static UTextureRenderTarget2D* WidgetToTextureRenderTarget2d(FString& OutCode, UUserWidget* InWidget, FVector2D InDrawSize);
+
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Export Texture2D As Bitmap", Keywords = "t2d, texture2d, utexture2d, bitmap, export, create"), Category = "Extended Variables|Converter")
+	static bool ExportT2dAsBitmap(UTexture2D* Texture, FString Path);
 
 };

@@ -4,9 +4,14 @@
 #include "ExtendedVars.h"
 
 // UE Includes.
+#include "Slate/WidgetRenderer.h"               // Widget to Texture2D
+#include "Runtime/UMG/Public/UMG.h"             // Widget to Texture2D
+#include "Kismet/KismetRenderingLibrary.h"	    // Texture2D
 #include "Kismet/KismetStringLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "Misc/Base64.h"
+#include "Misc/Base64.h"                        // Encode / Decode Base64 
+#include "Misc/FileHelper.h"                    // Load File to Array
+#include "HAL/FileManager.h"                    // Save Bitmap to Disk
 
 UExtendedVarsBPLibrary::UExtendedVarsBPLibrary(const FObjectInitializer& ObjectInitializer)
 : Super(ObjectInitializer)
@@ -42,6 +47,49 @@ TArray<uint8> UExtendedVarsBPLibrary::StringToBytesArray(FString In_String)
     Array_Bytes.Append((uint8*)Source.Get(), Source.Length());
 
     return Array_Bytes;
+}
+
+bool UExtendedVarsBPLibrary::Read_From_Path(UBytesObject*& Out_Bytes_Object, FString In_Path)
+{
+    if (In_Path.IsEmpty() == true)
+    {
+        return false;
+    }
+
+    FPaths::NormalizeFilename(In_Path);
+    if (FPaths::FileExists(In_Path) == false)
+    {
+        return false;
+    }
+
+    TArray64<uint8> ByteArray;
+    FFileHelper::LoadFileToArray(ByteArray, *In_Path);
+
+    UBytesObject* BytesObject = NewObject<UBytesObject>();
+    BytesObject->ByteArray = ByteArray;
+
+    Out_Bytes_Object = BytesObject;
+
+    return true;
+}
+
+bool UExtendedVarsBPLibrary::BytesToBytesObject(UBytesObject*& Out_Bytes_Object, TArray<uint8> In_Bytes)
+{
+    if (In_Bytes.Num() == 0)
+    {
+        return false;
+    }
+
+    TArray64<uint8> ByteArray;
+    ByteArray.SetNum(In_Bytes.Num(), true);
+    FMemory::Memcpy(ByteArray.GetData(), In_Bytes.GetData(), In_Bytes.GetAllocatedSize());
+
+    UBytesObject* BytesObject = NewObject<UBytesObject>();
+    BytesObject->ByteArray = ByteArray;
+
+    Out_Bytes_Object = BytesObject;
+
+    return true;
 }
 
 // String Group
@@ -88,7 +136,6 @@ TArray<FString> UExtendedVarsBPLibrary::StringSort(TArray<FString> TargetArray, 
 
 uint8 UExtendedVarsBPLibrary::NumberToByte(int32 In_Number)
 {
-
     if (In_Number >= 0 && In_Number <= 255)
     {
         return In_Number;
@@ -272,4 +319,65 @@ TArray<FDateTime> UExtendedVarsBPLibrary::TimeSort(TArray<FDateTime> TargetArray
     }
 
     return SortedArray;
+}
+
+UTextureRenderTarget2D* UExtendedVarsBPLibrary::WidgetToTextureRenderTarget2d(FString& OutCode, UUserWidget* InWidget, FVector2D InDrawSize)
+{
+    if (IsValid(InWidget) == false)
+    {
+        OutCode = "Source widget is not valid";
+        return nullptr;
+    }
+
+    UTextureRenderTarget2D* TextureTarget = FWidgetRenderer::CreateTargetFor(InDrawSize, TextureFilter::TF_Default, false);
+    TextureTarget->RenderTargetFormat = RTF_RGBA8;
+
+    FWidgetRenderer* WidgetRenderer = new FWidgetRenderer(true);
+    WidgetRenderer->DrawWidget(TextureTarget, InWidget->TakeWidget(), InDrawSize, 0, false);
+
+    if (IsValid(TextureTarget) == true)
+    {
+        return TextureTarget;
+    }
+
+    else
+    {
+        OutCode = "Unable to create Texture Render Target 2D";
+        return nullptr;
+    }
+}
+
+bool UExtendedVarsBPLibrary::ExportT2dAsBitmap(UTexture2D* Texture, FString Path)
+{
+    if (IsValid(Texture) == false)
+    {
+        return false;
+    }
+
+    if (Path.IsEmpty() == true)
+    {
+        return false;
+    }
+
+    FPaths::MakeStandardFilename(Path);
+
+    int32 Texture_Width = Texture->GetSizeX();
+    int32 Texture_Height = Texture->GetSizeY();
+
+    FTexture2DMipMap& Texture_Mip = Texture->GetPlatformData()->Mips[0];
+    void* Texture_Data = Texture_Mip.BulkData.Lock(LOCK_READ_WRITE);
+
+    TArray<FColor> Array_Colors;
+    Array_Colors.SetNum(Texture_Width * Texture_Height);
+
+    // Texture data is BGRA formatted. So, we need to multiply with 4 for each color.
+    FMemory::Memcpy(Array_Colors.GetData(), static_cast<FColor*>(Texture_Data), static_cast<SIZE_T>(Array_Colors.Num()) * 4);
+
+    Texture_Mip.BulkData.Unlock();
+    Texture->UpdateResource();
+
+    //FString Path = FPaths::ProjectSavedDir() + 
+    bool IsBitmapCreated = FFileHelper::CreateBitmap(*Path, Texture_Width, Texture_Height, Array_Colors.GetData(), NULL, &IFileManager::Get(), NULL, true);
+
+    return true;
 }
