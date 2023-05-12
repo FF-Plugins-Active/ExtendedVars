@@ -321,6 +321,8 @@ TArray<FDateTime> UExtendedVarsBPLibrary::TimeSort(TArray<FDateTime> TargetArray
     return SortedArray;
 }
 
+// Render Group
+
 UTextureRenderTarget2D* UExtendedVarsBPLibrary::WidgetToTextureRenderTarget2d(FString& OutCode, UUserWidget* InWidget, FVector2D InDrawSize)
 {
     if (IsValid(InWidget) == false)
@@ -347,19 +349,12 @@ UTextureRenderTarget2D* UExtendedVarsBPLibrary::WidgetToTextureRenderTarget2d(FS
     }
 }
 
-bool UExtendedVarsBPLibrary::ExportT2dAsBitmap(UTexture2D* Texture, FString Path)
+bool UExtendedVarsBPLibrary::Texture2dColorsArray(TArray<FColor>& Out_Array, UTexture2D* Texture)
 {
     if (IsValid(Texture) == false)
     {
         return false;
     }
-
-    if (Path.IsEmpty() == true)
-    {
-        return false;
-    }
-
-    FPaths::MakeStandardFilename(Path);
 
     int32 Texture_Width = Texture->GetSizeX();
     int32 Texture_Height = Texture->GetSizeY();
@@ -376,8 +371,69 @@ bool UExtendedVarsBPLibrary::ExportT2dAsBitmap(UTexture2D* Texture, FString Path
     Texture_Mip.BulkData.Unlock();
     Texture->UpdateResource();
 
-    //FString Path = FPaths::ProjectSavedDir() + 
-    bool IsBitmapCreated = FFileHelper::CreateBitmap(*Path, Texture_Width, Texture_Height, Array_Colors.GetData(), NULL, &IFileManager::Get(), NULL, true);
+    if (Array_Colors.Num() > 0)
+    {
+        Out_Array = Array_Colors;
+        return true;
+    }
+    
+    else
+    {
+        return false;
+    }
+}
 
-    return true;
+bool UExtendedVarsBPLibrary::ExportT2dAsBitmap(UTexture2D* Texture, FString Path)
+{
+    if (IsValid(Texture) == false)
+    {
+        return false;
+    }
+
+    if (Path.IsEmpty() == true)
+    {
+        return false;
+    }
+
+    FPaths::MakeStandardFilename(Path);
+
+    TArray<FColor> Array_Colors;
+    bool IsArrayCreated = UExtendedVarsBPLibrary::Texture2dColorsArray(Array_Colors, Texture);
+
+    if (IsArrayCreated == true)
+    {
+        bool IsBitmapCreated = FFileHelper::CreateBitmap(*Path, Texture->GetSizeX(), Texture->GetSizeY(), Array_Colors.GetData(), NULL, &IFileManager::Get(), NULL, true);
+        return IsBitmapCreated;
+    }
+
+    else
+    {
+        return false;
+    }
+}
+
+// Path Group
+
+FString UExtendedVarsBPLibrary::Android_Path_Helper(FString InFileName)
+{
+    if (UGameplayStatics::GetPlatformName() == "Android" || UGameplayStatics::GetPlatformName() == "IOS")
+    {
+        if (InFileName.IsEmpty() == true)
+        {
+            return "";
+        }
+
+        FString Path_Referance = FPlatformFileManager::Get().GetPlatformFile().ConvertToAbsolutePathForExternalAppForRead(*(FPaths::ProjectSavedDir()));
+
+        TArray<FString> Path_Sections;
+        Path_Referance.ParseIntoArray(Path_Sections, TEXT("/"), true);
+        FString Path_Absolute = "/" + Path_Sections[0] + "/" + Path_Sections[1] + "/" + Path_Sections[2] + "/" + InFileName;
+
+        return Path_Absolute;
+    }
+
+    else
+    {
+        return "";
+    }
 }
