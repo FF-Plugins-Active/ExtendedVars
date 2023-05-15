@@ -4,18 +4,48 @@
 
 #include "Kismet/BlueprintFunctionLibrary.h"
 
+// Custom Includes.
 #include "Extended_Enums.h"
+
+// UE Includes.
+#include "Engine/FontFace.h"
 
 #include "ExtendedVarsBPLibrary.generated.h"
 
 UCLASS(BlueprintType)
-class EXTENDEDVARS_API UBytesObject : public UObject
+class EXTENDEDVARS_API UBytesObject_64 : public UObject
 {
 	GENERATED_BODY()
 
 public:
 
 	TArray64<uint8> ByteArray;
+
+};
+
+UCLASS(BlueprintType)
+class EXTENDEDVARS_API UBytesObject_32 : public UObject
+{
+	GENERATED_BODY()
+
+public:
+
+	UPROPERTY(BlueprintReadWrite)
+	TArray<uint8> ByteArray;
+
+};
+
+UCLASS(BlueprintType)
+class EXTENDEDVARS_API URuntimeFont : public UObject
+{
+	GENERATED_BODY()
+
+public:
+
+	UPROPERTY(BlueprintReadWrite)
+	UFont* Font;
+
+	UFontFace* Font_Face;
 
 };
 
@@ -33,11 +63,17 @@ class UExtendedVarsBPLibrary : public UBlueprintFunctionLibrary
 	static EXTENDEDVARS_API TArray<uint8> StringToBytesArray(FString In_String);
 
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Read from Path", ToolTip = "You need to use absolute platform path.", Keywords = "read, load, path, bytes"), Category = "Extended Variables|Bytes")
-	static EXTENDEDVARS_API bool Read_From_Path(UBytesObject*& Out_Bytes_Object, FString In_Path);
+	static EXTENDEDVARS_API bool Read_From_Path(UBytesObject_64*& Out_Bytes_Object, FString In_Path);
 
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Bytes to Bytes Object", ToolTip = "", Keywords = "read, load, path"), Category = "Extended Variables|Bytes")
-	static EXTENDEDVARS_API bool BytesToBytesObject(UBytesObject*& Out_Bytes_Object, TArray<uint8> In_Bytes);
+	static EXTENDEDVARS_API bool BytesToBytesObject(UBytesObject_64*& Out_Bytes_Object, TArray<uint8> In_Bytes);
 	
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Runtime Font Load", ToolTip = "", Keywords = "load, path, font, runtime"), Category = "Extended Variables | Bytes")
+	static EXTENDEDVARS_API URuntimeFont* RuntimeFont_Load(TArray<uint8> In_Bytes);
+
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Runtime Font Load", ToolTip = "", Keywords = "load, path, font, runtime"), Category = "Extended Variables | Bytes")
+	static EXTENDEDVARS_API bool RuntimeFont_Release(UPARAM(ref)URuntimeFont*& In_RuntimeFont);
+
 	// String Group
 
 	UFUNCTION(BlueprintPure, meta = (DisplayName = "Base64 URL to String", ToolTip = "Description.", Keywords = "sort, string, fstring, ascending, descending"), Category = "Extended Variables|String")

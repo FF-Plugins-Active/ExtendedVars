@@ -49,7 +49,7 @@ TArray<uint8> UExtendedVarsBPLibrary::StringToBytesArray(FString In_String)
     return Array_Bytes;
 }
 
-bool UExtendedVarsBPLibrary::Read_From_Path(UBytesObject*& Out_Bytes_Object, FString In_Path)
+bool UExtendedVarsBPLibrary::Read_From_Path(UBytesObject_64*& Out_Bytes_Object, FString In_Path)
 {
     if (In_Path.IsEmpty() == true)
     {
@@ -65,15 +65,15 @@ bool UExtendedVarsBPLibrary::Read_From_Path(UBytesObject*& Out_Bytes_Object, FSt
     TArray64<uint8> ByteArray;
     FFileHelper::LoadFileToArray(ByteArray, *In_Path);
 
-    UBytesObject* BytesObject = NewObject<UBytesObject>();
-    BytesObject->ByteArray = ByteArray;
+    UBytesObject_64* BytesObject_64 = NewObject<UBytesObject_64>();
+    BytesObject_64->ByteArray = ByteArray;
 
-    Out_Bytes_Object = BytesObject;
+    Out_Bytes_Object = BytesObject_64;
 
     return true;
 }
 
-bool UExtendedVarsBPLibrary::BytesToBytesObject(UBytesObject*& Out_Bytes_Object, TArray<uint8> In_Bytes)
+bool UExtendedVarsBPLibrary::BytesToBytesObject(UBytesObject_64*& Out_Bytes_Object, TArray<uint8> In_Bytes)
 {
     if (In_Bytes.Num() == 0)
     {
@@ -84,10 +84,48 @@ bool UExtendedVarsBPLibrary::BytesToBytesObject(UBytesObject*& Out_Bytes_Object,
     ByteArray.SetNum(In_Bytes.Num(), true);
     FMemory::Memcpy(ByteArray.GetData(), In_Bytes.GetData(), In_Bytes.GetAllocatedSize());
 
-    UBytesObject* BytesObject = NewObject<UBytesObject>();
-    BytesObject->ByteArray = ByteArray;
+    UBytesObject_64* BytesObject_64 = NewObject<UBytesObject_64>();
+    BytesObject_64->ByteArray = ByteArray;
 
-    Out_Bytes_Object = BytesObject;
+    Out_Bytes_Object = BytesObject_64;
+
+    return true;
+}
+
+URuntimeFont* UExtendedVarsBPLibrary::RuntimeFont_Load(TArray<uint8> In_Bytes)
+{
+    UFontFace* FontFace = NewObject<UFontFace>();
+    FontFace->LoadingPolicy = EFontLoadingPolicy::Inline;
+    FontFace->FontFaceData = FFontFaceData::MakeFontFaceData(CopyTemp(In_Bytes));
+    FontFace->AddToRoot();
+    
+    UFont* Font = NewObject<UFont>();
+    Font->FontCacheType = EFontCacheType::Runtime;
+    FTypefaceEntry& TypefaceEntry = Font->CompositeFont.DefaultTypeface.Fonts[Font->CompositeFont.DefaultTypeface.Fonts.AddDefaulted()];
+    TypefaceEntry.Font = FFontData(FontFace);
+    Font->AddToRoot();
+
+    URuntimeFont* RuntimeFont = NewObject<URuntimeFont>();
+    RuntimeFont->Font_Face = FontFace;
+    RuntimeFont->Font = Font;
+
+    return RuntimeFont;
+}
+
+bool UExtendedVarsBPLibrary::RuntimeFont_Release(UPARAM(ref)URuntimeFont*& In_RuntimeFont)
+{
+    if (IsValid(In_RuntimeFont) == false)
+    {
+        return false;
+    }
+
+    In_RuntimeFont->Font_Face->RemoveFromRoot();
+    In_RuntimeFont->Font_Face->ConditionalBeginDestroy();
+
+    In_RuntimeFont->Font->RemoveFromRoot();
+    In_RuntimeFont->Font->ConditionalBeginDestroy();
+
+    In_RuntimeFont = nullptr;
 
     return true;
 }
