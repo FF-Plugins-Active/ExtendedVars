@@ -1,5 +1,10 @@
 # ExtendedVars
  
+ # RELATED PROJECTS
+ https://github.com/FF-Projects-UE/PDF_Reader
+ 
+ https://github.com/FF-Projects-UE/UE_LibHaru
+ 
  # TARGET PLATFORM
  * It works all platforms which Unreal support. But we don't have Apple Mac computers. So, you have to create your own binaries for Apple ecosystem.
  
