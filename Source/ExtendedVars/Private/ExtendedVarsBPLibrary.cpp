@@ -484,13 +484,14 @@ UTexture2D* UExtendedVarsBPLibrary::TRT2D_To_T2D(UTextureRenderTarget2D* In_TRT_
         return nullptr;
     }
 
-    FImage Texture_Image;
-    FImageUtils::GetRenderTargetImage(In_TRT_2D, Texture_Image);
+    TArray64<uint8> Buffer;
+    FImageUtils::GetRawData(In_TRT_2D, Buffer);
+    SIZE_T BufferSize = static_cast<size_t>(Buffer.GetAllocatedSize());
 
     UTexture2D* Texture = UTexture2D::CreateTransient(In_TRT_2D->SizeX, In_TRT_2D->SizeY, PF_B8G8R8A8);
     FTexture2DMipMap& Texture_Mip = Texture->GetPlatformData()->Mips[0];
     void* Texture_Data = Texture_Mip.BulkData.Lock(LOCK_READ_WRITE);
-    FMemory::Memcpy(Texture_Data, Texture_Image.RawData.GetData(), Texture_Image.RawData.GetAllocatedSize());
+    FMemory::Memcpy(Texture_Data, Buffer.GetData(), BufferSize);
 
     Texture_Mip.BulkData.Unlock();
     Texture->UpdateResource();
