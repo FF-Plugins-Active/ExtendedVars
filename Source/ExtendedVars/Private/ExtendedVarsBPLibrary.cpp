@@ -14,6 +14,10 @@
 #include "HAL/FileManager.h"                    // Save Texture as Bitmap
 #include "ImageUtils.h"                         // Save Texture as Jpeg
 
+THIRD_PARTY_INCLUDES_START
+#include <string>
+THIRD_PARTY_INCLUDES_END
+
 UExtendedVarsBPLibrary::UExtendedVarsBPLibrary(const FObjectInitializer& ObjectInitializer)
 : Super(ObjectInitializer)
 {
