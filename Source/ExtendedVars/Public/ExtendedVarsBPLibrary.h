@@ -64,22 +64,28 @@ class UExtendedVarsBPLibrary : public UBlueprintFunctionLibrary
 
 	// Bytes Group.
 	
-	UFUNCTION(BlueprintPure, meta = (DisplayName = "String to Bytes", Keywords = "string, bytes"), Category = "Extended Variables|Bytes")
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "String to Bytes", Keywords = "bytes, string"), Category = "Extended Variables|Bytes")
 	static EXTENDEDVARS_API TArray<uint8> String_To_Bytes(FString In_String);
 
-	UFUNCTION(BlueprintPure, meta = (DisplayName = "Bytes To String", Keywords = "http, web, server, api, bind, route, post"), Category = "Extended Variables|Bytes")
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Bytes To String", Keywords = "bytes, string"), Category = "Extended Variables|Bytes")
 	static EXTENDEDVARS_API FString Bytes_To_String(TArray<uint8> In_Bytes);
 
-	UFUNCTION(BlueprintPure, meta = (DisplayName = "Base64 to Bytes", Keywords = "base64, bytes"), Category = "Extended Variables|Bytes")
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Bytes to Hex", ToolTip = "", Keywords = "bytes, string, hex"), Category = "Extended Variables|Bytes")
+	static EXTENDEDVARS_API FString Bytes_To_Hex(TArray<uint8> In_Bytes, int32 In_Size);
+
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Bytes to Each Hex", ToolTip = "", Keywords = "bytes, string, hex"), Category = "Extended Variables|Bytes")
+	static EXTENDEDVARS_API FString Bytes_To_Each_Hex(TArray<uint8> In_Bytes, int32 Index);
+
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Base64 to Bytes", Keywords = "bytes, base64"), Category = "Extended Variables|Bytes")
 	static EXTENDEDVARS_API TArray<uint8> Base64_To_Bytes(FString In_Base64, bool bUseUrl);
 
-	UFUNCTION(BlueprintPure, meta = (DisplayName = "Bytes To Base64", Keywords = "http, web, server, api, bind, route, post"), Category = "Extended Variables|Bytes")
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Bytes To Base64", Keywords = "bytes, base64"), Category = "Extended Variables|Bytes")
 	static EXTENDEDVARS_API FString Bytes_To_Base64(TArray<uint8> In_Bytes, bool bUseUrl);
 		
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Bytes to Bytes64 Object", ToolTip = "", Keywords = "read, load, path"), Category = "Extended Variables|Bytes")
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Bytes to Bytes64 Object", ToolTip = "", Keywords = "bytes, object, x64"), Category = "Extended Variables|Bytes")
 	static EXTENDEDVARS_API bool Bytes_To_B64_OBject(UBytesObject_64*& Out_Bytes_Object, TArray<uint8> In_Bytes);
 
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Bytes to Bytes32 Object", ToolTip = "", Keywords = "read, load, path"), Category = "Extended Variables|Bytes")
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Bytes to Bytes32 Object", ToolTip = "", Keywords = "bytes, object, x86, 32"), Category = "Extended Variables|Bytes")
 	static EXTENDEDVARS_API bool Bytes_To_B32_OBject(UBytesObject_32*& Out_Bytes_Object, TArray<uint8> In_Bytes);
 
 	// Fonts Group.
@@ -155,7 +161,7 @@ class UExtendedVarsBPLibrary : public UBlueprintFunctionLibrary
 	static EXTENDEDVARS_API bool Export_T2D_Jpeg(FString& Out_Path, UTexture2D* Texture, FString In_Path, bool bUseTemp);
 
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Export Texture2D As Bytes Low Level", Keywords = "t2d, texture2d, utexture2d, export, byte, bytes, low, level"), Category = "Extended Variables|Render")
-	static EXTENDEDVARS_API bool Export_T2D_Bytes_LL(TArray<uint8>& Out_Bytes, UTexture2D* Texture);
+	static EXTENDEDVARS_API bool Export_T2D_Bytes(TArray<uint8>& Out_Bytes, UTexture2D* Texture);
 
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Import Texture2D From Bytes", Keywords = "t2d, texture2d, utexture2d, import, create, bytes"), Category = "Extended Variables|Render")
 	static EXTENDEDVARS_API bool Import_T2D_Bytes(UTexture2D*& Out_Texture, TArray<uint8> In_Bytes, bool bUseSrgb);

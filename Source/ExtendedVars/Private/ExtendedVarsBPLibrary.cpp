@@ -16,6 +16,9 @@
 
 THIRD_PARTY_INCLUDES_START
 #include <string>
+#include <sstream>
+#include <iostream>
+#include <iomanip>
 THIRD_PARTY_INCLUDES_END
 
 UExtendedVarsBPLibrary::UExtendedVarsBPLibrary(const FObjectInitializer& ObjectInitializer)
@@ -102,6 +105,28 @@ FString UExtendedVarsBPLibrary::Bytes_To_String(TArray<uint8> In_Bytes)
     }
 
     return "";
+}
+
+FString UExtendedVarsBPLibrary::Bytes_To_Hex(TArray<uint8> In_Bytes, int32 In_Size)
+{
+    std::stringstream ss;
+
+    ss << std::hex << std::setfill('0');
+
+    for (int i = 0; i < In_Size; i++) {
+        ss << std::hex << std::setw(2) << static_cast<int>(In_Bytes.GetData()[i]);
+    }
+
+    return ss.str().c_str();
+}
+
+FString UExtendedVarsBPLibrary::Bytes_To_Each_Hex(TArray<uint8> In_Bytes, int32 Index)
+{
+    std::stringstream ss;
+    ss << std::hex << std::setfill('0');
+    ss << std::hex << std::setw(2) << static_cast<int>(In_Bytes.GetData()[Index]);
+
+    return ss.str().c_str();
 }
 
 TArray<uint8> UExtendedVarsBPLibrary::Base64_To_Bytes(FString In_Base64, bool bUseUrl)
@@ -518,27 +543,69 @@ bool UExtendedVarsBPLibrary::Export_T2D_Colors(TArray<FColor>& Out_Array, UTextu
         return false;
     }
 
-    int32 Texture_Width = Texture->GetSizeX();
-    int32 Texture_Height = Texture->GetSizeY();
-
-    FTexture2DMipMap& Texture_Mip = Texture->GetPlatformData()->Mips[0];
-    void* Texture_Data = Texture_Mip.BulkData.Lock(LOCK_READ_WRITE);
-
-    TArray<FColor> Array_Colors;
-    Array_Colors.SetNum(Texture_Width * Texture_Height);
-
-    // Texture data is BGRA formatted. So, we need to multiply with 4 for each color.
-    FMemory::Memcpy(Array_Colors.GetData(), static_cast<FColor*>(Texture_Data), static_cast<SIZE_T>(Array_Colors.Num()) * 4);
-
-    Texture_Mip.BulkData.Unlock();
-    Texture->UpdateResource();
-
-    if (Array_Colors.Num() > 0)
+    if (Texture->GetPixelFormat() == EPixelFormat::PF_B8G8R8A8 && Texture->CompressionSettings.GetIntValue() == 5 || Texture->CompressionSettings.GetIntValue() == 7)
     {
-        Out_Array = Array_Colors;
-        return true;
+        int32 Texture_Width = Texture->GetSizeX();
+        int32 Texture_Height = Texture->GetSizeY();
+
+        FTexture2DMipMap& Texture_Mip = Texture->GetPlatformData()->Mips[0];
+        void* Texture_Data = Texture_Mip.BulkData.Lock(LOCK_READ_WRITE);
+
+        TArray<FColor> Array_Colors;
+        Array_Colors.SetNum(Texture_Width * Texture_Height);
+        FMemory::Memcpy(Array_Colors.GetData(), static_cast<FColor*>(Texture_Data), static_cast<SIZE_T>(Array_Colors.Num()) * 4);
+
+        Texture_Mip.BulkData.Unlock();
+
+        if (Array_Colors.Num() > 0)
+        {
+            Out_Array = Array_Colors;
+            return true;
+        }
+
+        else
+        {
+            return false;
+        }
     }
-    
+
+    else
+    {
+        return false;
+    }
+}
+
+bool UExtendedVarsBPLibrary::Export_T2D_Bytes(TArray<uint8>& Out_Bytes, UTexture2D* Texture)
+{
+    if (IsValid(Texture) == false)
+    {
+        return false;
+    }
+
+    if (Texture->GetPixelFormat() == EPixelFormat::PF_B8G8R8A8 && Texture->CompressionSettings.GetIntValue() == 5 || Texture->CompressionSettings.GetIntValue() == 7)
+    {
+        FTexture2DMipMap& Texture_Mip = Texture->GetPlatformData()->Mips[0];
+        void* Texture_Data = Texture_Mip.BulkData.Lock(LOCK_READ_WRITE);
+
+        TArray<uint8> Array_Bytes;
+        size_t Lenght = static_cast<size_t>(Texture->GetSizeX() * Texture->GetSizeY() * 4);
+        Array_Bytes.SetNum(Lenght);
+        FMemory::Memcpy(Array_Bytes.GetData(), Texture_Data, Lenght);
+
+        Texture_Mip.BulkData.Unlock();
+
+        if (Array_Bytes.Num() > 0)
+        {
+            Out_Bytes = Array_Bytes;
+            return true;
+        }
+
+        else
+        {
+            return false;
+        }
+    }
+
     else
     {
         return false;
@@ -571,9 +638,7 @@ bool UExtendedVarsBPLibrary::Export_T2D_Bitmap(FString& Out_Path, UTexture2D* Te
     }
 
     TArray<FColor> Array_Colors;
-    bool IsArrayCreated = UExtendedVarsBPLibrary::Export_T2D_Colors(Array_Colors, Texture);
-
-    if (IsArrayCreated == true)
+    if (UExtendedVarsBPLibrary::Export_T2D_Colors(Array_Colors, Texture))
     {
         bool IsBitmapCreated = FFileHelper::CreateBitmap(*FileName, Texture->GetSizeX(), Texture->GetSizeY(), Array_Colors.GetData(), NULL, &IFileManager::Get(), NULL, true);
         Out_Path = FileName;
@@ -622,33 +687,6 @@ bool UExtendedVarsBPLibrary::Export_T2D_Jpeg(FString& Out_Path, UTexture2D* Text
     }
 
     Out_Path = FileName;
-
-    return true;
-}
-
-bool UExtendedVarsBPLibrary::Export_T2D_Bytes_LL(TArray<uint8>& Out_Bytes, UTexture2D* Texture)
-{
-    if (IsValid(Texture) == false)
-    {
-        return false;
-    }
-
-    FTexture2DMipMap& Texture_Mip = Texture->GetPlatformData()->Mips[0];
-    void* Texture_Data = Texture_Mip.BulkData.Lock(LOCK_READ_WRITE);
-    
-    TArray<uint8> Array_Bytes;
-    size_t Lenght = static_cast<size_t>(Texture->GetSizeX() * Texture->GetSizeY() * 4);
-    Array_Bytes.SetNum(Lenght);
-    FMemory::Memcpy(Array_Bytes.GetData(), Texture_Data, Lenght);
-
-    if (Array_Bytes.GetAllocatedSize() == 0)
-    {
-        return false;
-    }
-   
-    Out_Bytes = Array_Bytes;
-
-    Texture_Mip.BulkData.Unlock();
 
     return true;
 }
