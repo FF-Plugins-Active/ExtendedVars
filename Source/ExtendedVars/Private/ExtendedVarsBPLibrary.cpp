@@ -407,6 +407,12 @@ void UExtendedVarsBPLibrary::Int32ToGraphics(EGraphicsType GraphicsType, int32 T
 
 // Math Group | Float.
 
+float UExtendedVarsBPLibrary::FloatPrecision(float TargetFloat, int32 Precision)
+{
+    int32 PrecisionFixer = pow(10, Precision);
+    return floor(PrecisionFixer * TargetFloat) / PrecisionFixer;
+}
+
 int32 UExtendedVarsBPLibrary::FloatFractionCount(float TargetFloat)
 {
     FString FractionString;

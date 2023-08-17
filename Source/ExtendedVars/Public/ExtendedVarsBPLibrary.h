@@ -129,6 +129,9 @@ class UExtendedVarsBPLibrary : public UBlueprintFunctionLibrary
 
 	// Math Group | Float.
 
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Float Precision", ToolTip = "Description.", Keywords = "float, get, precision"), Category = "Extended Variables|Float")
+	static EXTENDEDVARS_API float FloatPrecision(float TargetFloat, int32 Precision);
+	
 	UFUNCTION(BlueprintPure, meta = (DisplayName = "Get Fraction Count", ToolTip = "Description.", Keywords = "float, get, fraction, count"), Category = "Extended Variables|Float")
 	static EXTENDEDVARS_API int32 FloatFractionCount(float TargetFloat);
 
