@@ -24,18 +24,6 @@ public:
 };
 
 UCLASS(BlueprintType)
-class EXTENDEDVARS_API UBytesObject_32 : public UObject
-{
-	GENERATED_BODY()
-
-public:
-
-	UPROPERTY(BlueprintReadWrite)
-	TArray<uint8> ByteArray;
-
-};
-
-UCLASS(BlueprintType)
 class EXTENDEDVARS_API URuntimeFont : public UObject
 {
 	GENERATED_BODY()
@@ -59,11 +47,11 @@ class UExtendedVarsBPLibrary : public UBlueprintFunctionLibrary
 	UFUNCTION(BlueprintPure, meta = (DisplayName = "Android Path Helper", ToolTip = "This node automatically gives Internal Storage absolute path. So, you just need to define sub-folder and file. Example: Download/sample.pdf", Keywords = "android, ios, mobile, folder, file, path, helper, absolute"), Category = "Extended Variables|Read")
 	static EXTENDEDVARS_API FString Android_Path_Helper(FString In_FileName);
 
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Read File from Path x64", ToolTip = "You need to use absolute path.", Keywords = "read, load, path, bytes, import, file"), Category = "Extended Variables|Read")
-	static EXTENDEDVARS_API bool Read_File_From_Path_x64(UBytesObject_64*& Out_Bytes_Object, FString In_Path, bool bUseLowLevel = false);
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Read File from Path 64", ToolTip = "You need to use absolute path.", Keywords = "read, load, path, bytes, import, file"), Category = "Extended Variables|Read")
+	static EXTENDEDVARS_API bool Read_File_From_Path_64(UBytesObject_64*& Out_Bytes_Object, FString In_Path, bool bUseLowLevel = false);
 
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Read File from Path x32", ToolTip = "You need to use absolute path.", Keywords = "read, load, path, bytes, import, file"), Category = "Extended Variables|Read")
-	static EXTENDEDVARS_API bool Read_File_From_Path_x32(UBytesObject_32*& Out_Bytes_Object, FString In_Path, bool bUseLowLevel = false);
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Read File from Path 32", ToolTip = "You need to use absolute path.", Keywords = "read, load, path, bytes, import, file"), Category = "Extended Variables|Read")
+	static EXTENDEDVARS_API bool Read_File_From_Path_32(TArray<uint8> Out_Bytes, FString In_Path, bool bUseLowLevel = false);
 
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Read Text from Path", ToolTip = "You need to use absolute path.", Keywords = "read, load, path, bytes, import, text"), Category = "Extended Variables|Read")
 	static EXTENDEDVARS_API bool Read_Text_From_Path(FString& Out_String, FString In_Path);
@@ -78,8 +66,14 @@ class UExtendedVarsBPLibrary : public UBlueprintFunctionLibrary
 
 	// Convert From Bytes.
 
-	UFUNCTION(BlueprintPure, meta = (DisplayName = "Bytes To String", Keywords = "bytes, string"), Category = "Extended Variables|Bytes")
-	static EXTENDEDVARS_API FString Bytes_To_String(TArray<uint8> In_Bytes, bool bUseUnreal = false);
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Bytes to Bytes64 Object", ToolTip = "", Keywords = "bytes, object, x64"), Category = "Extended Variables|Bytes")
+	static EXTENDEDVARS_API bool Bytes_To_Object(UBytesObject_64*& Out_Bytes_Object, TArray<uint8> In_Bytes);
+
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Bytes To String 64", Keywords = "bytes, string"), Category = "Extended Variables|Bytes")
+	static EXTENDEDVARS_API FString Bytes_To_String_64(UBytesObject_64* B64_Object, bool bUseUnreal = false);
+
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Bytes To String 32", Keywords = "bytes, string"), Category = "Extended Variables|Bytes")
+	static EXTENDEDVARS_API FString Bytes_To_String_32(TArray<uint8> In_Bytes, bool bUseUnreal = false);
 
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Bytes to Hex", ToolTip = "", Keywords = "bytes, string, hex"), Category = "Extended Variables|Bytes")
 	static EXTENDEDVARS_API FString Bytes_To_Hex(TArray<uint8> In_Bytes, int32 In_Size);
@@ -89,22 +83,6 @@ class UExtendedVarsBPLibrary : public UBlueprintFunctionLibrary
 
 	UFUNCTION(BlueprintPure, meta = (DisplayName = "Bytes To Base64", Keywords = "bytes, base64"), Category = "Extended Variables|Bytes")
 	static EXTENDEDVARS_API FString Bytes_To_Base64(TArray<uint8> In_Bytes, bool bUseUrl);
-
-	// Convert To Bytes Objects.
-
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Bytes to Bytes64 Object", ToolTip = "", Keywords = "bytes, object, x64"), Category = "Extended Variables|Bytes")
-	static EXTENDEDVARS_API bool Bytes_To_B64_OBject(UBytesObject_64*& Out_Bytes_Object, TArray<uint8> In_Bytes);
-
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Bytes to Bytes32 Object", ToolTip = "", Keywords = "bytes, object, x86, 32"), Category = "Extended Variables|Bytes")
-	static EXTENDEDVARS_API bool Bytes_To_B32_OBject(UBytesObject_32*& Out_Bytes_Object, TArray<uint8> In_Bytes);
-
-	// Convert From Bytes Objects
-
-	UFUNCTION(BlueprintPure, meta = (DisplayName = "Bytes Object To Bytes", ToolTip = "It works with only 32 bit objects because blueprints doesn't support TArray64.", Keywords = "bytes, object"), Category = "Extended Variables|Bytes")
-	static EXTENDEDVARS_API TArray<uint8> B32_Object_To_Bytes(UBytesObject_32* In_Bytes_Object);
-	
-	UFUNCTION(BlueprintPure, meta = (DisplayName = "Bytes Object To String", Keywords = "bytes, string"), Category = "Extended Variables|Bytes")
-	static EXTENDEDVARS_API FString Bytes_Object_To_String(UObject* In_Bytes_Object, bool bUseUnreal = false);
 
 	// Fonts Group.
 

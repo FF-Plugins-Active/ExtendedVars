@@ -53,7 +53,7 @@ FString UExtendedVarsBPLibrary::Android_Path_Helper(FString In_FileName)
     }
 }
 
-bool UExtendedVarsBPLibrary::Read_File_From_Path_x64(UBytesObject_64*& Out_Bytes_Object, FString In_Path, bool bUseLowLevel)
+bool UExtendedVarsBPLibrary::Read_File_From_Path_64(UBytesObject_64*& Out_Bytes_Object, FString In_Path, bool bUseLowLevel)
 {
     if (In_Path.IsEmpty())
     {
@@ -117,7 +117,7 @@ bool UExtendedVarsBPLibrary::Read_File_From_Path_x64(UBytesObject_64*& Out_Bytes
     return true;
 }
 
-bool UExtendedVarsBPLibrary::Read_File_From_Path_x32(UBytesObject_32*& Out_Bytes_Object, FString In_Path, bool bUseLowLevel)
+bool UExtendedVarsBPLibrary::Read_File_From_Path_32(TArray<uint8> Out_Bytes, FString In_Path, bool bUseLowLevel)
 {
     if (In_Path.IsEmpty())
     {
@@ -129,8 +129,6 @@ bool UExtendedVarsBPLibrary::Read_File_From_Path_x32(UBytesObject_32*& Out_Bytes
     {
         return false;
     }
-
-    TArray<uint8> ByteArray;
 
     if (bUseLowLevel)
     {
@@ -162,21 +160,18 @@ bool UExtendedVarsBPLibrary::Read_File_From_Path_x32(UBytesObject_32*& Out_Bytes
         fread(Buffer, sizeof(uint8), FileSize, File);
         fclose(File);
 
-        FMemory::Memcpy(ByteArray.GetData(), Buffer, FileSize);
+        FMemory::Memcpy(Out_Bytes.GetData(), Buffer, FileSize);
     }
 
     else
     {
-        FFileHelper::LoadFileToArray(ByteArray, *In_Path);
+        FFileHelper::LoadFileToArray(Out_Bytes, *In_Path);
 
-        if (ByteArray.Num() == 0)
+        if (Out_Bytes.Num() == 0)
         {
             return false;
         }
     }
-
-    Out_Bytes_Object = NewObject<UBytesObject_32>();
-    Out_Bytes_Object->ByteArray = ByteArray;
 
     return true;
 }
@@ -240,7 +235,65 @@ TArray<uint8> UExtendedVarsBPLibrary::Base64_To_Bytes(FString In_Base64, bool bU
 
 // Convert From Bytes.
 
-FString UExtendedVarsBPLibrary::Bytes_To_String(TArray<uint8> In_Bytes, bool bUseUnreal)
+bool UExtendedVarsBPLibrary::Bytes_To_Object(UBytesObject_64*& Out_Bytes_Object, TArray<uint8> In_Bytes)
+{
+    if (In_Bytes.Num() == 0)
+    {
+        return false;
+    }
+
+    TArray64<uint8> ByteArray;
+    ByteArray.SetNum(In_Bytes.Num(), true);
+    FMemory::Memcpy(ByteArray.GetData(), In_Bytes.GetData(), In_Bytes.GetAllocatedSize());
+
+    UBytesObject_64* BytesObject_64 = NewObject<UBytesObject_64>();
+    BytesObject_64->ByteArray = ByteArray;
+
+    Out_Bytes_Object = BytesObject_64;
+
+    return true;
+}
+
+FString UExtendedVarsBPLibrary::Bytes_To_String_64(UBytesObject_64* B64_Object, bool bUseUnreal)
+{
+    if (!IsValid(B64_Object))
+    {
+        return "";
+    }
+
+    if (B64_Object->ByteArray.Num() == 0)
+    {
+        return "";
+    }
+
+    if (bUseUnreal)
+    {
+        int32 Index = 0;
+        int32 Length = 0x7FFFFFFF;
+
+        if (Index < 0)
+        {
+            Length += Index;
+            Index = 0;
+        }
+
+        if (Length > B64_Object->ByteArray.Num() - Index)
+        {
+            Length = B64_Object->ByteArray.Num() - Index;
+        }
+
+        const FUTF8ToTCHAR Src(reinterpret_cast<const ANSICHAR*>(B64_Object->ByteArray.GetData() + Index), Length);
+        return FString(Src.Length(), Src.Get());
+    }
+
+    else
+    {
+        const std::string Body_String(reinterpret_cast<const char*>(B64_Object->ByteArray.GetData()), B64_Object->ByteArray.Num());
+        return Body_String.c_str();
+    }
+}
+
+FString UExtendedVarsBPLibrary::Bytes_To_String_32(TArray<uint8> In_Bytes, bool bUseUnreal)
 {
     if (In_Bytes.Num() == 0)
     {
@@ -313,144 +366,6 @@ FString UExtendedVarsBPLibrary::Bytes_To_Base64(TArray<uint8> In_Bytes, bool bUs
     }
 
     return Base64;
-}
-
-// Convert To Bytes Objects.
-
-bool UExtendedVarsBPLibrary::Bytes_To_B64_OBject(UBytesObject_64*& Out_Bytes_Object, TArray<uint8> In_Bytes)
-{
-    if (In_Bytes.Num() == 0)
-    {
-        return false;
-    }
-
-    TArray64<uint8> ByteArray;
-    ByteArray.SetNum(In_Bytes.Num(), true);
-    FMemory::Memcpy(ByteArray.GetData(), In_Bytes.GetData(), In_Bytes.GetAllocatedSize());
-
-    UBytesObject_64* BytesObject_64 = NewObject<UBytesObject_64>();
-    BytesObject_64->ByteArray = ByteArray;
-
-    Out_Bytes_Object = BytesObject_64;
-
-    return true;
-}
-
-bool UExtendedVarsBPLibrary::Bytes_To_B32_OBject(UBytesObject_32*& Out_Bytes_Object, TArray<uint8> In_Bytes)
-{
-    if (In_Bytes.Num() == 0)
-    {
-        return false;
-    }
-
-    TArray64<uint8> ByteArray;
-    ByteArray.SetNum(In_Bytes.Num(), true);
-    FMemory::Memcpy(ByteArray.GetData(), In_Bytes.GetData(), In_Bytes.GetAllocatedSize());
-
-    UBytesObject_32* BytesObject_32 = NewObject<UBytesObject_32>();
-    BytesObject_32->ByteArray = ByteArray;
-
-    Out_Bytes_Object = BytesObject_32;
-
-    return true;
-}
-
-// Convert From Bytes Objects
-
-TArray<uint8> UExtendedVarsBPLibrary::B32_Object_To_Bytes(UBytesObject_32* In_Bytes_Object)
-{
-    if (IsValid(In_Bytes_Object))
-    {
-        return In_Bytes_Object->ByteArray;
-    }
-
-    else
-    {
-        TArray<uint8> EmptyArray;
-        return EmptyArray;
-    }
-}
-
-FString UExtendedVarsBPLibrary::Bytes_Object_To_String(UObject* In_Bytes_Object, bool bUseUnreal)
-{
-    if (!IsValid(In_Bytes_Object))
-    {
-        return "";
-    }
-    
-    UBytesObject_64* Object_B64 = Cast<UBytesObject_64>(In_Bytes_Object);
-
-    if (IsValid(Object_B64))
-    {
-        if (Object_B64->ByteArray.Num() == 0)
-        {
-            return "";
-        }
-
-        if (bUseUnreal)
-        {
-            int32 Index = 0;
-            int32 Length = 0x7FFFFFFF;
-
-            if (Index < 0)
-            {
-                Length += Index;
-                Index = 0;
-            }
-
-            if (Length > Object_B64->ByteArray.Num() - Index)
-            {
-                Length = Object_B64->ByteArray.Num() - Index;
-            }
-
-            const FUTF8ToTCHAR Src(reinterpret_cast<const ANSICHAR*>(Object_B64->ByteArray.GetData() + Index), Length);
-            return FString(Src.Length(), Src.Get());
-        }
-
-        else
-        {
-            const std::string Body_String(reinterpret_cast<const char*>(Object_B64->ByteArray.GetData()), Object_B64->ByteArray.Num());
-            return Body_String.c_str();
-        }
-    }
-
-    UBytesObject_32* Object_B32 = Cast<UBytesObject_32>(In_Bytes_Object);
-
-    if (IsValid(Object_B32))
-    {
-        if (Object_B32->ByteArray.Num() == 0)
-        {
-            return "";
-        }
-
-        if (bUseUnreal)
-        {
-            int32 Index = 0;
-            int32 Length = 0x7FFFFFFF;
-
-            if (Index < 0)
-            {
-                Length += Index;
-                Index = 0;
-            }
-
-            if (Length > Object_B32->ByteArray.Num() - Index)
-            {
-                Length = Object_B32->ByteArray.Num() - Index;
-            }
-
-            const FUTF8ToTCHAR Src(reinterpret_cast<const ANSICHAR*>(Object_B32->ByteArray.GetData() + Index), Length);
-            return FString(Src.Length(), Src.Get());
-        }
-
-        else
-        {
-            const std::string Body_String(reinterpret_cast<const char*>(Object_B32->ByteArray.GetData()), Object_B32->ByteArray.Num());
-            return Body_String.c_str();
-        }
-    }
-
-    return "";
 }
 
 // Font Group.
