@@ -7,12 +7,18 @@
 #include "Slate/WidgetRenderer.h"               // Widget to Texture2D
 #include "Runtime/UMG/Public/UMG.h"             // Widget to Texture2D
 #include "Kismet/KismetRenderingLibrary.h"	    // Texture2D
+
 #include "Kismet/KismetStringLibrary.h"
+
 #include "Kismet/KismetMathLibrary.h"
-#include "Misc/Base64.h"                        // Encode / Decode Base64 
+
+#include "Misc/Base64.h"                        // Encode & Decode Base64
+
 #include "Misc/FileHelper.h"                    // Load File to Array
 #include "HAL/FileManager.h"                    // Save Texture as Bitmap
 #include "ImageUtils.h"                         // Save Texture as Jpeg
+
+#include "Algo/Reverse.h"
 
 THIRD_PARTY_INCLUDES_START
 #include <string>
@@ -337,7 +343,8 @@ FString UExtendedVarsBPLibrary::Bytes_To_Hex(TArray<uint8> In_Bytes, int32 In_Si
 
     ss << std::hex << std::setfill('0');
 
-    for (int i = 0; i < In_Size; i++) {
+    for (int i = 0; i < In_Size; i++)
+    {
         ss << std::hex << std::setw(2) << static_cast<int>(In_Bytes.GetData()[i]);
     }
 
@@ -645,6 +652,58 @@ TArray<FDateTime> UExtendedVarsBPLibrary::TimeSort(TArray<FDateTime> TargetArray
     }
 
     return SortedArray;
+}
+
+bool UExtendedVarsBPLibrary::TimeCounterToFDateTime(FDateTime& Out_Time, FString In_Time, FString Delimiter, EStringToDate ConvertType)
+{
+    if (In_Time.IsEmpty())
+    {
+        return false;
+    }
+
+    TArray<FString> TimeSections;
+
+    switch (ConvertType)
+    {
+    case EStringToDate::None:
+
+        return false;
+
+    case EStringToDate::UnrealDateTime:
+
+        return FDateTime::Parse(In_Time, Out_Time);
+
+    case EStringToDate::Http:
+
+        return FDateTime::ParseHttpDate(In_Time, Out_Time);
+
+    case EStringToDate::Iso8601:
+
+        return FDateTime::ParseIso8601(*In_Time, Out_Time);
+
+    case EStringToDate::Custom:
+
+        TimeSections = UKismetStringLibrary::ParseIntoArray(In_Time, Delimiter, false);
+
+        if (TimeSections.Num() == 3)
+        {
+            Out_Time = FDateTime(1, 1, 1, FCString::Atoi(*TimeSections[0]), FCString::Atoi(*TimeSections[1]), FCString::Atoi(*TimeSections[2]), 0);
+            return true;
+        }
+        
+        else
+        {
+            return false;
+        }
+
+    default:
+        return false;
+    }
+}
+
+FString UExtendedVarsBPLibrary::FDateTimeToString(FDateTime In_Time)
+{
+    return In_Time.ToString();
 }
 
 // Render Group.

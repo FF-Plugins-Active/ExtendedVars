@@ -75,3 +75,13 @@ enum class EFontEncodings : uint8
 };
 ENUM_CLASS_FLAGS(EFontEncodings)
 
+UENUM(BlueprintType)
+enum class EStringToDate : uint8
+{
+	None			UMETA(DisplayName = "None"),
+	UnrealDateTime	UMETA(DisplayName = "FDateTime.ToString"),
+	Http			UMETA(DisplayName = "Http"),
+	Iso8601			UMETA(DisplayName = "Iso8601"),
+	Custom			UMETA(DisplayName = "Custom"),
+};
+ENUM_CLASS_FLAGS(EStringToDate)

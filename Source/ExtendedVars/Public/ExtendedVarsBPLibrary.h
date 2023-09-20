@@ -94,7 +94,7 @@ class UExtendedVarsBPLibrary : public UBlueprintFunctionLibrary
 
 	// String Group.
 
-	UFUNCTION(BlueprintPure, meta = (DisplayName = "Base64 URL to String", ToolTip = "Description.", Keywords = "sort, string, fstring, ascending, descending"), Category = "Extended Variables|String")
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Base64 URL To String", ToolTip = "Description.", Keywords = "sort, string, fstring, ascending, descending"), Category = "Extended Variables|String")
 	static EXTENDEDVARS_API bool Base64ToString(FString In_Base64, FString& OutDecoded);
 		
 	UFUNCTION(BlueprintPure, meta = (DisplayName = "Int64 To String", Keywords = "int64, string, fstring, convert"), Category = "Extended Variables|String")
@@ -105,16 +105,16 @@ class UExtendedVarsBPLibrary : public UBlueprintFunctionLibrary
 
 	// Math Group | Integer.
 
-	UFUNCTION(BlueprintPure, meta = (DisplayName = "Number to Byte", ToolTip = "It converts number to a byte form.", Keywords = "byte, string, fstring, convert"), Category = "Extended Variables|Math")
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Number To Byte", ToolTip = "It converts number to a byte form.", Keywords = "byte, string, fstring, convert"), Category = "Extended Variables|Math")
 	static EXTENDEDVARS_API uint8 NumberToByte(int32 In_Number);
 
 	UFUNCTION(BlueprintPure, meta = (DisplayName = "Get Int32 Place Family", Keywords = "int32, get, place, family"), Category = "Extended Variables|Integer")
 	static EXTENDEDVARS_API int32 Int32PlaceFamily(int32 TargetInteger);
 
-	UFUNCTION(BlueprintPure, meta = (DisplayName = "Int32 Truncate to Whole (Big)", Keywords = "int32, truncate, truncation, full, whole, big"), Category = "Extended Variables|Integer")
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Int32 Truncate To Whole (Big)", Keywords = "int32, truncate, truncation, full, whole, big"), Category = "Extended Variables|Integer")
 	static EXTENDEDVARS_API int32 Int32TruncateToWholeBig(int32 TargetInteger);
 
-	UFUNCTION(BlueprintPure, meta = (DisplayName = "Int32 Truncate to Whole (Small)", Keywords = "int32, truncate, truncation, full, whole, small"), Category = "Extended Variables|Integer")
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Int32 Truncate To Whole (Small)", Keywords = "int32, truncate, truncation, full, whole, small"), Category = "Extended Variables|Integer")
 	static EXTENDEDVARS_API int32 Int32TruncateToWholeSmall(int32 TargetInteger);
 
 	UFUNCTION(BlueprintPure, meta = (DisplayName = "Sort Integers", ToolTip = "Description.", Keywords = "sort, int32, ascending, descending"), Category = "Extended Variables|Integer")
@@ -141,6 +141,12 @@ class UExtendedVarsBPLibrary : public UBlueprintFunctionLibrary
 
 	UFUNCTION(BlueprintPure, meta = (DisplayName = "Sort Times", ToolTip = "Description.", Keywords = "sort, times, ascending, descending"), Category = "Extended Variables|Time")
 	static EXTENDEDVARS_API TArray<FDateTime> TimeSort(TArray<FDateTime> TargetArray, bool bIsDescending);
+
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Time Counter To FDateTime", ToolTip = "Description.", Keywords = "string, fstring, parse, date, time, convert, to"), Category = "Extended Variables|Time")
+	static EXTENDEDVARS_API bool TimeCounterToFDateTime(FDateTime& Out_Time, FString In_Time, FString Delimiter, EStringToDate ConvertType);
+
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "FDateTime To String", ToolTip = "Description.", Keywords = "string, fstring, parse, date, time, convert, to"), Category = "Extended Variables|Time")
+	static EXTENDEDVARS_API FString FDateTimeToString(FDateTime In_Time);
 
 	// Render Group.
 
