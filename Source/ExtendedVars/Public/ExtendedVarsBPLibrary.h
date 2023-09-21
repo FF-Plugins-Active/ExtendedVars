@@ -12,6 +12,36 @@
 
 #include "ExtendedVarsBPLibrary.generated.h"
 
+// Select folder from dialog (each content).
+USTRUCT(BlueprintType)
+struct EXTENDEDVARS_API FFolderContent
+{
+	GENERATED_BODY()
+
+public:
+
+	UPROPERTY(BlueprintReadOnly)
+	FString Path = "";
+
+	UPROPERTY(BlueprintReadOnly)
+	FString Name = "";
+
+	UPROPERTY(BlueprintReadOnly)
+	bool bIsFile = false;
+};
+
+// Select folder from dialog (array container).
+USTRUCT(BlueprintType)
+struct EXTENDEDVARS_API FFolderContentArray
+{
+	GENERATED_BODY()
+
+public:
+
+	UPROPERTY(BlueprintReadOnly)
+	TArray<FFolderContent> OutContents;
+};
+
 UCLASS(BlueprintType)
 class EXTENDEDVARS_API UBytesObject_64 : public UObject
 {
@@ -37,15 +67,24 @@ public:
 
 };
 
+UDELEGATE(BlueprintAuthorityOnly)
+DECLARE_DYNAMIC_DELEGATE_ThreeParams(FDelegateSearch, bool, bIsSearchSuccessful, FString, ErrorCode, FFolderContentArray, Out);
+
 UCLASS()
 class UExtendedVarsBPLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_UCLASS_BODY()
 
 	// Read Group.
-	
+
 	UFUNCTION(BlueprintPure, meta = (DisplayName = "Android Path Helper", ToolTip = "This node automatically gives Internal Storage absolute path. So, you just need to define sub-folder and file. Example: Download/sample.pdf", Keywords = "android, ios, mobile, folder, file, path, helper, absolute"), Category = "Extended Variables|Read")
 	static EXTENDEDVARS_API FString Android_Path_Helper(FString In_FileName);
+
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Get Folder Contents", ToolTip = "Description.", Keywords = "explorer, load, file, folder, content"), Category = "Extended Variables|Read")
+	static bool GetFolderContents(TArray<FFolderContent>& OutContents, FString& ErrorCode, FString InPath);
+
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Search In Folder", ToolTip = "Description.", Keywords = "explorer, load, file, folder, content"), Category = "Extended Variables|Read")
+	static void SearchInFolder(FDelegateSearch DelegateSearch, FString InPath, FString InSearch, bool bSearchExact);
 
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Read File from Path 64", ToolTip = "You need to use absolute path.", Keywords = "read, load, path, bytes, import, file"), Category = "Extended Variables|Read")
 	static EXTENDEDVARS_API bool Read_File_From_Path_64(UBytesObject_64*& Out_Bytes_Object, FString In_Path, bool bUseLowLevel = false);

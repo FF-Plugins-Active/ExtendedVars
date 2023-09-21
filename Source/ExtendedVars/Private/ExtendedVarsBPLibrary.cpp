@@ -4,27 +4,29 @@
 #include "ExtendedVars.h"
 
 // UE Includes.
+#include "Algo/Reverse.h"                       // Reverse array
+
+#include "Misc/Base64.h"                        // Encode & Decode Base64
+#include "Misc/FileHelper.h"                    // Load File to Array
+
+#include "HAL/FileManager.h"                    // Save texture as bitmap and select file from dialog.
+#include "HAL/FileManagerGeneric.h"
+
+#include "ImageUtils.h"                         // Save Texture as Jpeg
 #include "Slate/WidgetRenderer.h"               // Widget to Texture2D
 #include "Runtime/UMG/Public/UMG.h"             // Widget to Texture2D
 #include "Kismet/KismetRenderingLibrary.h"	    // Texture2D
 
 #include "Kismet/KismetStringLibrary.h"
-
 #include "Kismet/KismetMathLibrary.h"
-
-#include "Misc/Base64.h"                        // Encode & Decode Base64
-
-#include "Misc/FileHelper.h"                    // Load File to Array
-#include "HAL/FileManager.h"                    // Save Texture as Bitmap
-#include "ImageUtils.h"                         // Save Texture as Jpeg
-
-#include "Algo/Reverse.h"
 
 THIRD_PARTY_INCLUDES_START
 #include <string>
 #include <sstream>
 #include <iostream>
 #include <iomanip>
+#include <numbers>                              // C++20 math library.
+#include <cmath>
 THIRD_PARTY_INCLUDES_END
 
 UExtendedVarsBPLibrary::UExtendedVarsBPLibrary(const FObjectInitializer& ObjectInitializer)
@@ -33,7 +35,7 @@ UExtendedVarsBPLibrary::UExtendedVarsBPLibrary(const FObjectInitializer& ObjectI
 
 }
 
-// Path Group.
+// Read Group.
 
 FString UExtendedVarsBPLibrary::Android_Path_Helper(FString In_FileName)
 {
@@ -57,6 +59,133 @@ FString UExtendedVarsBPLibrary::Android_Path_Helper(FString In_FileName)
     {
         return "";
     }
+}
+
+bool UExtendedVarsBPLibrary::GetFolderContents(TArray<FFolderContent>& OutContents, FString& ErrorCode, FString InPath)
+{
+    if (InPath.IsEmpty() == true)
+    {
+        ErrorCode = "Path is empty.";
+        return false;
+    }
+
+    if (FPaths::DirectoryExists(InPath) == false)
+    {
+        ErrorCode = "Directory doesn't exist.";
+        return false;
+    }
+
+    class FFindDirectories : public IPlatformFile::FDirectoryVisitor
+    {
+    public:
+
+        TArray<FFolderContent> Array_Contents;
+
+        FFindDirectories() {}
+        virtual bool Visit(const TCHAR* CharPath, bool bIsDirectory) override
+        {
+            if (bIsDirectory == true)
+            {
+                FFolderContent EachContent;
+
+                FString Path = FString(CharPath) + "/";
+                FPaths::NormalizeDirectoryName(Path);
+
+                EachContent.Path = Path;
+                EachContent.Name = FPaths::GetBaseFilename(Path);
+                EachContent.bIsFile = false;
+
+                Array_Contents.Add(EachContent);
+            }
+
+            else if (bIsDirectory == false)
+            {
+                FFolderContent EachContent;
+
+                EachContent.Path = CharPath;
+                EachContent.Name = FPaths::GetCleanFilename(CharPath);
+                EachContent.bIsFile = true;
+
+                Array_Contents.Add(EachContent);
+            }
+
+            return true;
+        }
+    };
+
+    FFindDirectories GetFoldersVisitor;
+    FPlatformFileManager::Get().GetPlatformFile().IterateDirectory(*InPath, GetFoldersVisitor);
+
+    OutContents = GetFoldersVisitor.Array_Contents;
+
+    return true;
+}
+
+void UExtendedVarsBPLibrary::SearchInFolder(FDelegateSearch DelegateSearch, FString InPath, FString InSearch, bool bSearchExact)
+{
+    if (InPath.IsEmpty() == true)
+    {
+        return;
+    }
+
+    if (InSearch.IsEmpty() == true)
+    {
+        return;
+    }
+
+    if (FPaths::DirectoryExists(InPath) == false)
+    {
+        return;
+    }
+
+    AsyncTask(ENamedThreads::AnyNormalThreadNormalTask, [DelegateSearch, InPath, InSearch, bSearchExact]()
+        {
+            IFileManager& FileManager = FFileManagerGeneric::Get();
+
+            TArray<FString> Array_Contents;
+            TArray<FFolderContent> Array_Founds;
+
+            FileManager.FindFilesRecursive(Array_Contents, *InPath, TEXT("*"), true, true, false);
+
+            for (int32 ContentIndex = 0; ContentIndex < Array_Contents.Num(); ContentIndex++)
+            {
+                FFolderContent EachContent;
+
+                if (bSearchExact == true)
+                {
+                    if (FPaths::GetBaseFilename(Array_Contents[ContentIndex]) == InSearch)
+                    {
+                        EachContent.Name = FPaths::GetCleanFilename(Array_Contents[ContentIndex]);
+                        EachContent.Path = Array_Contents[ContentIndex];
+                        EachContent.bIsFile = FPaths::FileExists(Array_Contents[ContentIndex]);
+
+                        Array_Founds.Add(EachContent);
+                    }
+                }
+
+                else
+                {
+                    if (FPaths::GetBaseFilename(Array_Contents[ContentIndex]).Contains(InSearch) == true)
+                    {
+                        EachContent.Name = FPaths::GetCleanFilename(Array_Contents[ContentIndex]);
+                        EachContent.Path = Array_Contents[ContentIndex];
+                        EachContent.bIsFile = FPaths::FileExists(Array_Contents[ContentIndex]);
+
+                        Array_Founds.Add(EachContent);
+                    }
+                }
+            }
+
+            AsyncTask(ENamedThreads::GameThread, [DelegateSearch, Array_Founds]()
+                {
+                    FFolderContentArray ArrayContainer;
+                    ArrayContainer.OutContents = Array_Founds;
+
+                    DelegateSearch.ExecuteIfBound(true, "Success", ArrayContainer);
+                }
+            );
+        }
+    );
 }
 
 bool UExtendedVarsBPLibrary::Read_File_From_Path_64(UBytesObject_64*& Out_Bytes_Object, FString In_Path, bool bUseLowLevel)
@@ -379,7 +508,7 @@ FString UExtendedVarsBPLibrary::Bytes_To_Base64(TArray<uint8> In_Bytes, bool bUs
     return Base64;
 }
 
-// Font Group.
+// Fonts Group.
 
 URuntimeFont* UExtendedVarsBPLibrary::RuntimeFont_Load(TArray<uint8> In_Bytes)
 {
