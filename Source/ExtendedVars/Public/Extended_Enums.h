@@ -3,14 +3,6 @@
 #include "CoreMinimal.h"
 
 UENUM(BlueprintType)
-enum class EGraphicsType : uint8
-{
-	ChartPie	UMETA(DisplayName = "Pie Chart"),
-	ChartBar	UMETA(DisplayName = "Bar Chart"),
-};
-ENUM_CLASS_FLAGS(EGraphicsType)
-
-UENUM(BlueprintType)
 enum class EStandartFonts : uint8
 {
 	Helvetica				UMETA(DisplayName = "Helvetica/Arial"),
@@ -85,3 +77,16 @@ enum class EStringToDate : uint8
 	Custom			UMETA(DisplayName = "Custom"),
 };
 ENUM_CLASS_FLAGS(EStringToDate)
+
+UENUM(BlueprintType)
+enum class EByteConverters : uint8
+{
+	None			UMETA(DisplayName = "None"),
+	Base64			UMETA(DisplayName = "Base64"),
+	Base64Url		UMETA(DisplayName = "Base64Url"),
+	Hex_Full		UMETA(DisplayName = "Hex Full"),
+	Hex_Indexed		UMETA(DisplayName = "Hex Indexed"),
+	UTF8_UE			UMETA(DisplayName = "UTF8 (UE Method)"),
+	UTF8_Native		UMETA(DisplayName = "UTF8 (Native Method)"),
+};
+ENUM_CLASS_FLAGS(EByteConverters)

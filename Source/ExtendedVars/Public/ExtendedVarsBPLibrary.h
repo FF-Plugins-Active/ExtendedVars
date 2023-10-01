@@ -75,117 +75,155 @@ class UExtendedVarsBPLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_UCLASS_BODY()
 
+	// Fonts Group.
+
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Runtime Font Load", ToolTip = "", Keywords = "runtime, font, load"), Category = "Extended Variables|Font")
+	static EXTENDEDVARS_API URuntimeFont* Runtime_Font_Load(TArray<uint8> In_Bytes);
+
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Runtime Font Release", ToolTip = "", Keywords = "runtime, font, release"), Category = "Extended Variables|Font")
+	static EXTENDEDVARS_API bool Runtime_Font_Release(UPARAM(ref)URuntimeFont*& In_RuntimeFont);
+
+	// Sorters
+
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Sort Strings", ToolTip = "Description.", Keywords = "string, fstring, ascending, descending, sort"), Category = "Extended Variables|Sorters")
+	static EXTENDEDVARS_API TArray<FString> Sort_String(TArray<FString> TargetArray, bool bIsDescending);
+
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Sort Integers", ToolTip = "Description.", Keywords = "sort, int32, ascending, descending"), Category = "Extended Variables|Sorters")
+	static EXTENDEDVARS_API TArray<int32> Sort_Int32(TArray<int32> TargetArray, bool bIsDescending);
+
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Sort Floats", ToolTip = "Description.", Keywords = "sort, float, ascending, descending"), Category = "Extended Variables|Sorters")
+	static EXTENDEDVARS_API TArray<float> Sort_Float(TArray<float> TargetArray, bool bIsDescending);
+
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Sort Floats", ToolTip = "Description.", Keywords = "sort, float, ascending, descending"), Category = "Extended Variables|Sorters")
+	static EXTENDEDVARS_API TArray<double> Sort_Double(TArray<double> TargetArray, bool bIsDescending);
+
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Sort Times", ToolTip = "Description.", Keywords = "sort, times, ascending, descending"), Category = "Extended Variables|Sorters")
+	static EXTENDEDVARS_API TArray<FDateTime> Sort_Time(TArray<FDateTime> TargetArray, bool bIsDescending);
+
 	// Read Group.
 
 	UFUNCTION(BlueprintPure, meta = (DisplayName = "Android Path Helper", ToolTip = "This node automatically gives Internal Storage absolute path. So, you just need to define sub-folder and file. Example: Download/sample.pdf", Keywords = "android, ios, mobile, folder, file, path, helper, absolute"), Category = "Extended Variables|Read")
 	static EXTENDEDVARS_API FString Android_Path_Helper(FString In_FileName);
 
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Get Folder Contents", ToolTip = "Description.", Keywords = "explorer, load, file, folder, content"), Category = "Extended Variables|Read")
-	static bool GetFolderContents(TArray<FFolderContent>& OutContents, FString& ErrorCode, FString InPath);
+	static EXTENDEDVARS_API bool Get_Folder_Contents(TArray<FFolderContent>& OutContents, FString& ErrorCode, FString InPath);
 
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Search In Folder", ToolTip = "Description.", Keywords = "explorer, load, file, folder, content"), Category = "Extended Variables|Read")
-	static void SearchInFolder(FDelegateSearch DelegateSearch, FString InPath, FString InSearch, bool bSearchExact);
+	static EXTENDEDVARS_API void Search_In_Folder(FDelegateSearch DelegateSearch, FString InPath, FString InSearch, bool bSearchExact);
 
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Read File from Path 64", ToolTip = "You need to use absolute path.", Keywords = "read, load, path, bytes, import, file"), Category = "Extended Variables|Read")
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Read File from Path (64 Bit)", ToolTip = "You need to use absolute path.", Keywords = "read, load, path, bytes, import, file"), Category = "Extended Variables|Read")
 	static EXTENDEDVARS_API bool Read_File_From_Path_64(UBytesObject_64*& Out_Bytes_Object, FString In_Path, bool bUseLowLevel = false);
 
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Read File from Path 32", ToolTip = "You need to use absolute path.", Keywords = "read, load, path, bytes, import, file"), Category = "Extended Variables|Read")
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Read File from Path (32 Bit)", ToolTip = "You need to use absolute path.", Keywords = "read, load, path, bytes, import, file"), Category = "Extended Variables|Read")
 	static EXTENDEDVARS_API bool Read_File_From_Path_32(TArray<uint8> Out_Bytes, FString In_Path, bool bUseLowLevel = false);
 
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Read Text from Path", ToolTip = "You need to use absolute path.", Keywords = "read, load, path, bytes, import, text"), Category = "Extended Variables|Read")
 	static EXTENDEDVARS_API bool Read_Text_From_Path(FString& Out_String, FString In_Path);
 
-	// Convert To Bytes.
+	// Bytes Group | Convert To.
 
-	UFUNCTION(BlueprintPure, meta = (DisplayName = "String to Bytes", Keywords = "bytes, string"), Category = "Extended Variables|Bytes")
-	static EXTENDEDVARS_API TArray<uint8> String_To_Bytes(FString In_String);
-
-	UFUNCTION(BlueprintPure, meta = (DisplayName = "Base64 to Bytes", Keywords = "bytes, base64"), Category = "Extended Variables|Bytes")
-	static EXTENDEDVARS_API TArray<uint8> Base64_To_Bytes(FString In_Base64, bool bUseUrl);
-
-	// Convert From Bytes.
-
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Bytes to Bytes64 Object", ToolTip = "", Keywords = "bytes, object, x64"), Category = "Extended Variables|Bytes")
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Bytes To Bytes64 Object", ToolTip = "", Keywords = "bytes, object, x64"), Category = "Extended Variables|Bytes")
 	static EXTENDEDVARS_API bool Bytes_To_Object(UBytesObject_64*& Out_Bytes_Object, TArray<uint8> In_Bytes);
 
-	UFUNCTION(BlueprintPure, meta = (DisplayName = "Bytes To String 64", Keywords = "bytes, string"), Category = "Extended Variables|Bytes")
-	static EXTENDEDVARS_API FString Bytes_To_String_64(UBytesObject_64* B64_Object, bool bUseUnreal = false);
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Bytes x64 To Hex", Keywords = "bytes, string, fstring, convert, to, hex"), Category = "Extended Variables|Bytes")
+	static EXTENDEDVARS_API FString Bytes_x64_To_Hex(UBytesObject_64* B64_Object, int32 Hex_Start, int32 Hex_End, bool bIsFull);
 
-	UFUNCTION(BlueprintPure, meta = (DisplayName = "Bytes To String 32", Keywords = "bytes, string"), Category = "Extended Variables|Bytes")
-	static EXTENDEDVARS_API FString Bytes_To_String_32(TArray<uint8> In_Bytes, bool bUseUnreal = false);
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Bytes x64 To Base64", Keywords = "bytes, string, fstring, convert, to, base64"), Category = "Extended Variables|Bytes")
+	static EXTENDEDVARS_API FString Bytes_x64_To_Base64(UBytesObject_64* B64_Object, bool bUseUrl);
 
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Bytes to Hex", ToolTip = "", Keywords = "bytes, string, hex"), Category = "Extended Variables|Bytes")
-	static EXTENDEDVARS_API FString Bytes_To_Hex(TArray<uint8> In_Bytes, int32 In_Size);
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Bytes x64 To UTF8 (Decoded)", Keywords = "bytes, string, fstring, convert, to, utf8"), Category = "Extended Variables|Bytes")
+	static EXTENDEDVARS_API FString Bytes_x64_To_UTF8(UBytesObject_64* B64_Object);
 
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Bytes to Each Hex", ToolTip = "", Keywords = "bytes, string, hex"), Category = "Extended Variables|Bytes")
-	static EXTENDEDVARS_API FString Bytes_To_Each_Hex(TArray<uint8> In_Bytes, int32 Index);
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Bytes x86 To Hex", Keywords = "bytes, string, fstring, convert, to, hex"), Category = "Extended Variables|Bytes")
+	static EXTENDEDVARS_API FString Bytes_x86_To_Hex(TArray<uint8> In_Bytes, int32 Hex_Start, int32 Hex_End, bool bIsFull);
 
-	UFUNCTION(BlueprintPure, meta = (DisplayName = "Bytes To Base64", Keywords = "bytes, base64"), Category = "Extended Variables|Bytes")
-	static EXTENDEDVARS_API FString Bytes_To_Base64(TArray<uint8> In_Bytes, bool bUseUrl);
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Bytes x86 To Base64", Keywords = "bytes, string, fstring, convert, to, base64"), Category = "Extended Variables|Bytes")
+	static EXTENDEDVARS_API FString Bytes_x86_To_Base64(TArray<uint8> In_Bytes, bool bUseUrl);
 
-	// Fonts Group.
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Bytes x86 To UTF8 (Decoded)", Keywords = "bytes, string, fstring, convert, to, utf8"), Category = "Extended Variables|Bytes")
+	static EXTENDEDVARS_API FString Bytes_x86_To_UTF8(TArray<uint8> In_Bytes);
 
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Runtime Font Load", ToolTip = "", Keywords = "runtime, font, load"), Category = "Extended Variables|Font")
-	static EXTENDEDVARS_API URuntimeFont* RuntimeFont_Load(TArray<uint8> In_Bytes);
+	// Bytes Group | Convert From.
 
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Runtime Font Release", ToolTip = "", Keywords = "runtime, font, release"), Category = "Extended Variables|Font")
-	static EXTENDEDVARS_API bool RuntimeFont_Release(UPARAM(ref)URuntimeFont*& In_RuntimeFont);
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Hex To Bytes x64", Keywords = "bytes, string, fstring, convert, to, hex"), Category = "Extended Variables|Bytes")
+	static EXTENDEDVARS_API UBytesObject_64* Hex_To_Bytes_x64(FString In_Hex);
+
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "UTF8 To Bytes x64", Keywords = "bytes, string, fstring, convert, to, utf8"), Category = "Extended Variables|Bytes")
+	static EXTENDEDVARS_API UBytesObject_64* UTF8_To_Bytes_x64(FString In_UTF8);
+
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Base64 To Bytes x64", Keywords = "bytes, string, fstring, convert, to, base64"), Category = "Extended Variables|Bytes")
+	static EXTENDEDVARS_API UBytesObject_64* Base64_To_Bytes_x64(FString In_Base64, bool bUseUrl);
+
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Hex To Bytes x86", Keywords = "bytes, string, fstring, convert, to, hex"), Category = "Extended Variables|Bytes")
+	static EXTENDEDVARS_API TArray<uint8> Hex_To_Bytes_x86(FString In_Hex);
+
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "UTF8 To Bytes x86", Keywords = "bytes, string, fstring, convert, to, utf8"), Category = "Extended Variables|Bytes")
+	static EXTENDEDVARS_API TArray<uint8> UTF8_To_Bytes_x86(FString In_UTF8);
+
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Base64 To Bytes x86", Keywords = "bytes, string, fstring, convert, to, base64"), Category = "Extended Variables|Bytes")
+	static EXTENDEDVARS_API TArray<uint8> Base64_To_Bytes_x86(FString In_Base, bool bUseUrl);
 
 	// String Group.
 
-	UFUNCTION(BlueprintPure, meta = (DisplayName = "Base64 URL To String", ToolTip = "Description.", Keywords = "sort, string, fstring, ascending, descending"), Category = "Extended Variables|String")
-	static EXTENDEDVARS_API bool Base64ToString(FString In_Base64, FString& OutDecoded);
-		
-	UFUNCTION(BlueprintPure, meta = (DisplayName = "Int64 To String", Keywords = "int64, string, fstring, convert"), Category = "Extended Variables|String")
-	static EXTENDEDVARS_API FString Int64ToString(int64 TargetInt64);
-		
-	UFUNCTION(BlueprintPure, meta = (DisplayName = "Sort Strings", ToolTip = "Description.", Keywords = "sort, string, fstring, ascending, descending"), Category = "Extended Variables|String")
-	static EXTENDEDVARS_API TArray<FString> StringSort(TArray<FString> TargetArray, bool bIsDescending);
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "FDateTime To String", ToolTip = "Description.", Keywords = "string, fstring, parse, date, time, convert, to"), Category = "Extended Variables|String")
+	static EXTENDEDVARS_API FString FDateTime_To_String(FDateTime In_Time);
 
-	// Math Group | Integer.
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Int64 To String", Keywords = "string, fstring, convert, int64"), Category = "Extended Variables|String")
+	static EXTENDEDVARS_API FString Int64_To_String(int64 TargetInt64);
 
-	UFUNCTION(BlueprintPure, meta = (DisplayName = "Number To Byte", ToolTip = "It converts number to a byte form.", Keywords = "byte, string, fstring, convert"), Category = "Extended Variables|Math")
-	static EXTENDEDVARS_API uint8 NumberToByte(int32 In_Number);
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "String To Int32", ToolTip = "It converts string to int32 with Atoi.", Keywords = "string, fstring, convert, to, int, int32, int64"), Category = "Extended Variables|String")
+	static EXTENDEDVARS_API bool String_To_Int32(int32& Out_Int32, FString SourceString);
+
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "String To Int64", ToolTip = "It converts string to int64 with Atoi64.", Keywords = "string, fstring, convert, to, int, int32, int64"), Category = "Extended Variables|String")
+	static EXTENDEDVARS_API bool String_To_Int64(int64& Out_Int64, FString SourceString);
+
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "String To Double", ToolTip = "It converts string to double with Atod.", Keywords = "string, fstring, convert, to, float, double"), Category = "Extended Variables|String")
+	static EXTENDEDVARS_API bool String_To_Double(double& Out_Double, FString SourceString);
+
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "String To Float", ToolTip = "It converts string to float with Atof.", Keywords = "string, fstring, convert, to, float, double"), Category = "Extended Variables|String")
+	static EXTENDEDVARS_API bool String_To_Float(float& Out_Float, FString SourceString);
+
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "String To Hex", ToolTip = "", Keywords = "string, fstring, convert, to, hex"), Category = "Extended Variables|String")
+	static EXTENDEDVARS_API bool String_To_Hex(FString& Out_Hex, FString SourceString, bool bIsLower);
+
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "String To Base64", ToolTip = "", Keywords = "string, fstring, convert, to, base64"), Category = "Extended Variables|String")
+	static EXTENDEDVARS_API bool String_To_Base64(FString& Out_Base64, FString SourceString, bool bUseUrl);
+
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Hex To String", ToolTip = "", Keywords = "string, fstring, convert, to, hex"), Category = "Extended Variables|String")
+	static EXTENDEDVARS_API bool Hex_To_String(FString& Out_Decoded, FString In_Hex);
+
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Base64 To String", ToolTip = "", Keywords = "string, fstring, convert, to, base64"), Category = "Extended Variables|String")
+	static EXTENDEDVARS_API bool Base64_To_String(FString& Out_Decoded, FString In_Hex, bool bUseUrl);
+
+	// Integer Group.
+
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Number To Byte", ToolTip = "It converts number to a byte form.", Keywords = "byte, string, fstring, convert"), Category = "Extended Variables|Integer")
+	static EXTENDEDVARS_API uint8 Int32_To_Byte(int32 In_Number);
 
 	UFUNCTION(BlueprintPure, meta = (DisplayName = "Get Int32 Place Family", Keywords = "int32, get, place, family"), Category = "Extended Variables|Integer")
-	static EXTENDEDVARS_API int32 Int32PlaceFamily(int32 TargetInteger);
+	static EXTENDEDVARS_API int32 Int32_Place_Family(int32 TargetInteger);
 
 	UFUNCTION(BlueprintPure, meta = (DisplayName = "Int32 Truncate To Whole (Big)", Keywords = "int32, truncate, truncation, full, whole, big"), Category = "Extended Variables|Integer")
-	static EXTENDEDVARS_API int32 Int32TruncateToWholeBig(int32 TargetInteger);
+	static EXTENDEDVARS_API int32 Int32_Truncate_To_Big(int32 TargetInteger);
 
 	UFUNCTION(BlueprintPure, meta = (DisplayName = "Int32 Truncate To Whole (Small)", Keywords = "int32, truncate, truncation, full, whole, small"), Category = "Extended Variables|Integer")
-	static EXTENDEDVARS_API int32 Int32TruncateToWholeSmall(int32 TargetInteger);
+	static EXTENDEDVARS_API int32 Int32_Truncate_To_Small(int32 TargetInteger);
 
-	UFUNCTION(BlueprintPure, meta = (DisplayName = "Sort Integers", ToolTip = "Description.", Keywords = "sort, int32, ascending, descending"), Category = "Extended Variables|Integer")
-	static EXTENDEDVARS_API TArray<int32> Int32Sort(TArray<int32> TargetArray, bool bIsDescending);
-
-	UFUNCTION(BlueprintPure, meta = (DisplayName = "Int32 To Graphics", ToolTip = "Unit Value gives scale as a float between 0 and 1.", Keywords = "int32, graphics, pie"), Category = "Extended Variables|Integer")
-	static EXTENDEDVARS_API void Int32ToGraphics(EGraphicsType GraphicsType, int32 TargetInteger, int32 FullInteger, float& Scale, float& UnitValue);
-
-	// Math Group | Float.
+	// Float/Double Group.
 
 	UFUNCTION(BlueprintPure, meta = (DisplayName = "Float Precision", ToolTip = "Description.", Keywords = "float, get, precision"), Category = "Extended Variables|Float")
-	static EXTENDEDVARS_API float FloatPrecision(float TargetFloat, int32 Precision);
+	static EXTENDEDVARS_API float Float_Precision(float TargetFloat, int32 Precision);
 	
 	UFUNCTION(BlueprintPure, meta = (DisplayName = "Get Fraction Count", ToolTip = "Description.", Keywords = "float, get, fraction, count"), Category = "Extended Variables|Float")
-	static EXTENDEDVARS_API int32 FloatFractionCount(float TargetFloat);
+	static EXTENDEDVARS_API int32 Float_Fraction_Count(float TargetFloat);
 
 	UFUNCTION(BlueprintPure, meta = (DisplayName = "Round Next Float", ToolTip = "Description.", Keywords = "float, round, next"), Category = "Extended Variables|Float")
-	static EXTENDEDVARS_API float FloatRoundNext(float TargetFloat, double Decimal);
-
-	UFUNCTION(BlueprintPure, meta = (DisplayName = "Sort Floats", ToolTip = "Description.", Keywords = "sort, float, ascending, descending"), Category = "Extended Variables|Float")
-	static EXTENDEDVARS_API TArray<float> FloatSort(TArray<float> TargetArray, bool bIsDescending);
+	static EXTENDEDVARS_API float Float_Round_Next(float TargetFloat, double Decimal);
 	
 	// Time Group.
 
-	UFUNCTION(BlueprintPure, meta = (DisplayName = "Sort Times", ToolTip = "Description.", Keywords = "sort, times, ascending, descending"), Category = "Extended Variables|Time")
-	static EXTENDEDVARS_API TArray<FDateTime> TimeSort(TArray<FDateTime> TargetArray, bool bIsDescending);
-
 	UFUNCTION(BlueprintPure, meta = (DisplayName = "Time Counter To FDateTime", ToolTip = "Description.", Keywords = "string, fstring, parse, date, time, convert, to"), Category = "Extended Variables|Time")
-	static EXTENDEDVARS_API bool TimeCounterToFDateTime(FDateTime& Out_Time, FString In_Time, FString Delimiter, EStringToDate ConvertType);
-
-	UFUNCTION(BlueprintPure, meta = (DisplayName = "FDateTime To String", ToolTip = "Description.", Keywords = "string, fstring, parse, date, time, convert, to"), Category = "Extended Variables|Time")
-	static EXTENDEDVARS_API FString FDateTimeToString(FDateTime In_Time);
+	static EXTENDEDVARS_API bool Time_Counter_To_FDateTime(FDateTime& Out_Time, FString In_Time, FString Delimiter, EStringToDate ConvertType);
 
 	// Render Group.
 

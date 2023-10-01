@@ -17,10 +17,12 @@
 #include "Runtime/UMG/Public/UMG.h"             // Widget to Texture2D
 #include "Kismet/KismetRenderingLibrary.h"	    // Texture2D
 
-#include "Kismet/KismetStringLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Kismet/KismetStringLibrary.h"
+#include "Containers/UnrealString.h"            // Hex to Bytes + Bytes to Hex
 
 THIRD_PARTY_INCLUDES_START
+#include <cstdlib>
 #include <string>
 #include <sstream>
 #include <iostream>
@@ -33,6 +35,163 @@ UExtendedVarsBPLibrary::UExtendedVarsBPLibrary(const FObjectInitializer& ObjectI
 : Super(ObjectInitializer)
 {
 
+}
+
+// Fonts Group.
+
+URuntimeFont* UExtendedVarsBPLibrary::Runtime_Font_Load(TArray<uint8> In_Bytes)
+{
+    UFontFace* FontFace = NewObject<UFontFace>();
+    FontFace->LoadingPolicy = EFontLoadingPolicy::Inline;
+    FontFace->FontFaceData = FFontFaceData::MakeFontFaceData(CopyTemp(In_Bytes));
+    FontFace->AddToRoot();
+
+    UFont* Font = NewObject<UFont>();
+    Font->FontCacheType = EFontCacheType::Runtime;
+    FTypefaceEntry& TypefaceEntry = Font->CompositeFont.DefaultTypeface.Fonts[Font->CompositeFont.DefaultTypeface.Fonts.AddDefaulted()];
+    TypefaceEntry.Font = FFontData(FontFace);
+    Font->AddToRoot();
+
+    URuntimeFont* RuntimeFont = NewObject<URuntimeFont>();
+    RuntimeFont->Font_Face = FontFace;
+    RuntimeFont->Font = Font;
+
+    return RuntimeFont;
+}
+
+bool UExtendedVarsBPLibrary::Runtime_Font_Release(UPARAM(ref)URuntimeFont*& In_RuntimeFont)
+{
+    if (IsValid(In_RuntimeFont) == false)
+    {
+        return false;
+    }
+
+    In_RuntimeFont->Font_Face->RemoveFromRoot();
+    In_RuntimeFont->Font_Face->ConditionalBeginDestroy();
+
+    In_RuntimeFont->Font->RemoveFromRoot();
+    In_RuntimeFont->Font->ConditionalBeginDestroy();
+
+    In_RuntimeFont = nullptr;
+
+    return true;
+}
+
+// Sorters.
+
+TArray<FString> UExtendedVarsBPLibrary::Sort_String(TArray<FString> TargetArray, bool bIsDescending)
+{
+    TArray<FString> SortedArray = TargetArray;
+
+    if (bIsDescending == true)
+    {
+        SortedArray.Sort([](const FString Value1, const FString Value2)
+            {
+                return Value1 < Value2;
+            });
+    }
+
+    else
+    {
+        SortedArray.Sort([](const FString Value1, const FString Value2)
+            {
+                return Value1 > Value2;
+            });
+    }
+
+    return SortedArray;
+}
+
+TArray<int32> UExtendedVarsBPLibrary::Sort_Int32(TArray<int32> TargetArray, bool bIsDescending)
+{
+    TArray<int32> SortedArray = TargetArray;
+
+    if (bIsDescending == true)
+    {
+        SortedArray.Sort([](const int32 Value1, const int32 Value2)
+            {
+                return Value1 < Value2;
+            });
+    }
+
+    else
+    {
+        SortedArray.Sort([](const int32 Value1, const int32 Value2)
+            {
+                return Value1 > Value2;
+            });
+    }
+
+    return SortedArray;
+}
+
+TArray<float> UExtendedVarsBPLibrary::Sort_Float(TArray<float> TargetArray, bool bIsDescending)
+{
+    TArray<float> SortedArray = TargetArray;
+
+    if (bIsDescending == true)
+    {
+        SortedArray.Sort([](const float Value1, const float Value2)
+            {
+                return Value1 < Value2;
+            });
+    }
+
+    else
+    {
+        SortedArray.Sort([](const float Value1, const float Value2)
+            {
+                return Value1 > Value2;
+            });
+    }
+
+    return SortedArray;
+}
+
+TArray<double> UExtendedVarsBPLibrary::Sort_Double(TArray<double> TargetArray, bool bIsDescending)
+{
+    TArray<double> SortedArray = TargetArray;
+
+    if (bIsDescending == true)
+    {
+        SortedArray.Sort([](const float Value1, const float Value2)
+            {
+                return Value1 < Value2;
+            });
+    }
+
+    else
+    {
+        SortedArray.Sort([](const float Value1, const float Value2)
+            {
+                return Value1 > Value2;
+            });
+    }
+
+    return SortedArray;
+}
+
+TArray<FDateTime> UExtendedVarsBPLibrary::Sort_Time(TArray<FDateTime> TargetArray, bool bIsDescending)
+{
+    TArray<FDateTime> SortedArray = TargetArray;
+
+    if (bIsDescending == true)
+    {
+        SortedArray.Sort([](const FDateTime Value1, const FDateTime Value2)
+            {
+                return Value1 < Value2;
+            });
+    }
+
+    else
+    {
+        SortedArray.Sort([](const FDateTime Value1, const FDateTime Value2)
+            {
+                return Value1 > Value2;
+            });
+    }
+
+    return SortedArray;
 }
 
 // Read Group.
@@ -61,7 +220,7 @@ FString UExtendedVarsBPLibrary::Android_Path_Helper(FString In_FileName)
     }
 }
 
-bool UExtendedVarsBPLibrary::GetFolderContents(TArray<FFolderContent>& OutContents, FString& ErrorCode, FString InPath)
+bool UExtendedVarsBPLibrary::Get_Folder_Contents(TArray<FFolderContent>& OutContents, FString& ErrorCode, FString InPath)
 {
     if (InPath.IsEmpty() == true)
     {
@@ -121,7 +280,7 @@ bool UExtendedVarsBPLibrary::GetFolderContents(TArray<FFolderContent>& OutConten
     return true;
 }
 
-void UExtendedVarsBPLibrary::SearchInFolder(FDelegateSearch DelegateSearch, FString InPath, FString InSearch, bool bSearchExact)
+void UExtendedVarsBPLibrary::Search_In_Folder(FDelegateSearch DelegateSearch, FString InPath, FString InSearch, bool bSearchExact)
 {
     if (InPath.IsEmpty() == true)
     {
@@ -209,7 +368,7 @@ bool UExtendedVarsBPLibrary::Read_File_From_Path_64(UBytesObject_64*& Out_Bytes_
     {
         FPaths::MakePlatformFilename(Path);
 
-        FILE* File = nullptr;
+        _Post_ _Notnull_ FILE* File = nullptr;
 
 #ifdef _WIN64
 
@@ -273,7 +432,7 @@ bool UExtendedVarsBPLibrary::Read_File_From_Path_32(TArray<uint8> Out_Bytes, FSt
     {
         FPaths::MakePlatformFilename(Path);
 
-        FILE* File = nullptr;
+        _Post_ _Notnull_ FILE* File = nullptr;
 
 #ifdef _WIN64
 
@@ -332,47 +491,7 @@ bool UExtendedVarsBPLibrary::Read_Text_From_Path(FString& Out_String, FString In
     return FFileHelper::LoadFileToString(Out_String, *In_Path);
 }
 
-// Convert To Bytes.
-
-TArray<uint8> UExtendedVarsBPLibrary::String_To_Bytes(FString In_String)
-{
-    TArray<uint8> Array_Bytes;
-
-    if (In_String.IsEmpty() == true)
-    {
-        return Array_Bytes;
-    }
-
-    FTCHARToUTF8 Source = FTCHARToUTF8(In_String.GetCharArray().GetData());
-    Array_Bytes.Append((uint8*)Source.Get(), Source.Length());
-
-    return Array_Bytes;
-}
-
-TArray<uint8> UExtendedVarsBPLibrary::Base64_To_Bytes(FString In_Base64, bool bUseUrl)
-{
-    TArray<uint8> Array_Bytes;
-
-    if (In_Base64.IsEmpty() == true)
-    {
-        return Array_Bytes;
-    }
-
-    FString Base64_String = In_Base64;
-
-    if (bUseUrl == true)
-    {
-        Base64_String.ReplaceInline(TEXT("-"), TEXT("+"));
-        Base64_String.ReplaceInline(TEXT("_"), TEXT("/"));
-    }
-
-    TArray<uint8> Bytes;
-    FBase64::Decode(Base64_String, Bytes);
-
-    return Bytes;
-}
-
-// Convert From Bytes.
+// Bytes Group | Convert To.
 
 bool UExtendedVarsBPLibrary::Bytes_To_Object(UBytesObject_64*& Out_Bytes_Object, TArray<uint8> In_Bytes)
 {
@@ -393,204 +512,417 @@ bool UExtendedVarsBPLibrary::Bytes_To_Object(UBytesObject_64*& Out_Bytes_Object,
     return true;
 }
 
-FString UExtendedVarsBPLibrary::Bytes_To_String_64(UBytesObject_64* B64_Object, bool bUseUnreal)
+FString UExtendedVarsBPLibrary::Bytes_x64_To_Hex(UBytesObject_64* B64_Object, int32 Hex_Start, int32 Hex_End, bool bIsFull)
 {
-    if (!IsValid(B64_Object))
-    {
-        return "";
-    }
-
     if (B64_Object->ByteArray.Num() == 0)
     {
         return "";
     }
 
-    if (bUseUnreal)
+    if (bIsFull)
     {
-        int32 Index = 0;
-        int32 Length = 0x7FFFFFFF;
-
-        if (Index < 0)
+        std::stringstream Stream;
+        Stream << std::hex << std::setfill('0');
+        for (int Index = 0; Index < B64_Object->ByteArray.Num(); Index++)
         {
-            Length += Index;
-            Index = 0;
+            Stream << std::hex << std::setw(2) << static_cast<int>(B64_Object->ByteArray.GetData()[Index]);
         }
 
-        if (Length > B64_Object->ByteArray.Num() - Index)
+        return Stream.str().c_str();
+    }
+
+    else if (Hex_Start <= Hex_End && Hex_End < B64_Object->ByteArray.Num())
+    {
+        std::stringstream Stream;
+        Stream << std::hex << std::setfill('0');
+        for (int Index = Hex_Start; Index <= Hex_End; Index++)
         {
-            Length = B64_Object->ByteArray.Num() - Index;
+            Stream << std::hex << std::setw(2) << static_cast<int>(B64_Object->ByteArray.GetData()[Index]);
         }
 
-        const FUTF8ToTCHAR Src(reinterpret_cast<const ANSICHAR*>(B64_Object->ByteArray.GetData() + Index), Length);
-        return FString(Src.Length(), Src.Get());
+        return Stream.str().c_str();
     }
 
     else
     {
-        const std::string Body_String(reinterpret_cast<const char*>(B64_Object->ByteArray.GetData()), B64_Object->ByteArray.Num());
-        return Body_String.c_str();
+        return "";
     }
 }
 
-FString UExtendedVarsBPLibrary::Bytes_To_String_32(TArray<uint8> In_Bytes, bool bUseUnreal)
+FString UExtendedVarsBPLibrary::Bytes_x64_To_Base64(UBytesObject_64* B64_Object, bool bUseUrl)
+{
+    if (B64_Object->ByteArray.Num() == 0)
+    {
+        return "";
+    }
+
+    return FBase64::Encode(B64_Object->ByteArray.GetData(), B64_Object->ByteArray.Num(), bUseUrl ? EBase64Mode::UrlSafe : EBase64Mode::Standard);
+}
+
+FString UExtendedVarsBPLibrary::Bytes_x64_To_UTF8(UBytesObject_64* B64_Object)
+{
+    if (B64_Object->ByteArray.Num() == 0)
+    {
+        return "";
+    }
+
+    int32 Index = 0;
+    int32 Length = 0x7FFFFFFF;
+
+    if (Index < 0)
+    {
+        Length += Index;
+        Index = 0;
+    }
+
+    if (Length > B64_Object->ByteArray.Num() - Index)
+    {
+        Length = B64_Object->ByteArray.Num() - Index;
+    }
+
+    const FUTF8ToTCHAR Src(reinterpret_cast<const ANSICHAR*>(B64_Object->ByteArray.GetData() + Index), Length);
+    return FString(Src.Length(), Src.Get());
+}
+
+FString UExtendedVarsBPLibrary::Bytes_x86_To_Hex(TArray<uint8> In_Bytes, int32 Hex_Start, int32 Hex_End, bool bIsFull)
 {
     if (In_Bytes.Num() == 0)
     {
         return "";
     }
 
-    if (bUseUnreal)
+    if (bIsFull)
     {
-        int32 Index = 0;
-        int32 Length = 0x7FFFFFFF;
-
-        if (Index < 0)
+        std::stringstream Stream;
+        Stream << std::hex << std::setfill('0');
+        for (int Index = 0; Index < In_Bytes.Num(); Index++)
         {
-            Length += Index;
-            Index = 0;
+            Stream << std::hex << std::setw(2) << static_cast<int>(In_Bytes.GetData()[Index]);
         }
 
-        if (Length > In_Bytes.Num() - Index)
+        return Stream.str().c_str();
+
+        /**
+        * UE's implementation.
+        * return BytesToHex(In_Bytes.GetData(), In_Bytes.Num());
+        */
+    }
+
+    else if (Hex_Start <= Hex_End && Hex_End < In_Bytes.Num())
+    {
+        std::stringstream Stream;
+        Stream << std::hex << std::setfill('0');
+        for (int Index = Hex_Start; Index <= Hex_End; Index++)
         {
-            Length = In_Bytes.Num() - Index;
+            Stream << std::hex << std::setw(2) << static_cast<int>(In_Bytes.GetData()[Index]);
         }
 
-        const FUTF8ToTCHAR Src(reinterpret_cast<const ANSICHAR*>(In_Bytes.GetData() + Index), Length);
-        return FString(Src.Length(), Src.Get());
+        return Stream.str().c_str();
     }
 
     else
     {
-        const std::string Body_String(reinterpret_cast<const char*>(In_Bytes.GetData()), In_Bytes.Num());
-        return Body_String.c_str();
+        return "";
     }
 }
 
-FString UExtendedVarsBPLibrary::Bytes_To_Hex(TArray<uint8> In_Bytes, int32 In_Size)
-{
-    std::stringstream ss;
-
-    ss << std::hex << std::setfill('0');
-
-    for (int i = 0; i < In_Size; i++)
-    {
-        ss << std::hex << std::setw(2) << static_cast<int>(In_Bytes.GetData()[i]);
-    }
-
-    return ss.str().c_str();
-}
-
-FString UExtendedVarsBPLibrary::Bytes_To_Each_Hex(TArray<uint8> In_Bytes, int32 Index)
-{
-    std::stringstream ss;
-    ss << std::hex << std::setfill('0');
-    ss << std::hex << std::setw(2) << static_cast<int>(In_Bytes.GetData()[Index]);
-
-    return ss.str().c_str();
-}
-
-FString UExtendedVarsBPLibrary::Bytes_To_Base64(TArray<uint8> In_Bytes, bool bUseUrl)
+FString UExtendedVarsBPLibrary::Bytes_x86_To_Base64(TArray<uint8> In_Bytes, bool bUseUrl)
 {
     if (In_Bytes.Num() == 0)
     {
         return "";
     }
 
-    FString Base64 = FBase64::Encode(In_Bytes.GetData(), In_Bytes.GetAllocatedSize());
-
-    if (bUseUrl)
-    {
-        Base64.ReplaceInline(TEXT("+"), TEXT("-"));
-        Base64.ReplaceInline(TEXT("/"), TEXT("_"));
-        Base64.ReplaceInline(TEXT("="), TEXT(""));
-    }
-
-    return Base64;
+    return FBase64::Encode(In_Bytes.GetData(), In_Bytes.GetAllocatedSize(), bUseUrl ? EBase64Mode::UrlSafe : EBase64Mode::Standard);
 }
 
-// Fonts Group.
-
-URuntimeFont* UExtendedVarsBPLibrary::RuntimeFont_Load(TArray<uint8> In_Bytes)
+FString UExtendedVarsBPLibrary::Bytes_x86_To_UTF8(TArray<uint8> In_Bytes)
 {
-    UFontFace* FontFace = NewObject<UFontFace>();
-    FontFace->LoadingPolicy = EFontLoadingPolicy::Inline;
-    FontFace->FontFaceData = FFontFaceData::MakeFontFaceData(CopyTemp(In_Bytes));
-    FontFace->AddToRoot();
+    if (In_Bytes.Num() == 0)
+    {
+        return "";
+    }
+
+    int32 Index = 0;
+    int32 Length = 0x7FFFFFFF;
+
+    if (Index < 0)
+    {
+        Length += Index;
+        Index = 0;
+    }
+
+    if (Length > In_Bytes.Num() - Index)
+    {
+        Length = In_Bytes.Num() - Index;
+    }
+
+    const FUTF8ToTCHAR Src(reinterpret_cast<const ANSICHAR*>(In_Bytes.GetData() + Index), Length);
+    return FString(Src.Length(), Src.Get());
+}
+
+// Bytes Group | Convert From.
+
+UBytesObject_64* UExtendedVarsBPLibrary::Hex_To_Bytes_x64(FString In_Hex)
+{
+    if (In_Hex.IsEmpty())
+    {
+        return nullptr;
+    }
+
+    UBytesObject_64* BytesObject = NewObject<UBytesObject_64>();
     
-    UFont* Font = NewObject<UFont>();
-    Font->FontCacheType = EFontCacheType::Runtime;
-    FTypefaceEntry& TypefaceEntry = Font->CompositeFont.DefaultTypeface.Fonts[Font->CompositeFont.DefaultTypeface.Fonts.AddDefaulted()];
-    TypefaceEntry.Font = FFontData(FontFace);
-    Font->AddToRoot();
-
-    URuntimeFont* RuntimeFont = NewObject<URuntimeFont>();
-    RuntimeFont->Font_Face = FontFace;
-    RuntimeFont->Font = Font;
-
-    return RuntimeFont;
-}
-
-bool UExtendedVarsBPLibrary::RuntimeFont_Release(UPARAM(ref)URuntimeFont*& In_RuntimeFont)
-{
-    if (IsValid(In_RuntimeFont) == false)
+    FString Decoded_String;
+    for (size_t Index_Chars = 0; Index_Chars < In_Hex.Len(); Index_Chars += 2)
     {
-        return false;
+        //taking two characters from hex string
+        FString Part = UKismetStringLibrary::GetSubstring(In_Hex, Index_Chars, 2);
+
+        //changing it into base 16
+        char Character = std::stoul(TCHAR_TO_UTF8(*Part), nullptr, 16);
+
+        //putting it into the ASCII string
+        Decoded_String += Character;
     }
 
-    In_RuntimeFont->Font_Face->RemoveFromRoot();
-    In_RuntimeFont->Font_Face->ConditionalBeginDestroy();
+    FTCHARToUTF8 Source = FTCHARToUTF8(Decoded_String.GetCharArray().GetData());
+    BytesObject->ByteArray.Append((uint8*)Source.Get(), Source.Length());
 
-    In_RuntimeFont->Font->RemoveFromRoot();
-    In_RuntimeFont->Font->ConditionalBeginDestroy();
+    return BytesObject;
+}
 
-    In_RuntimeFont = nullptr;
+UBytesObject_64* UExtendedVarsBPLibrary::UTF8_To_Bytes_x64(FString In_UTF8)
+{
+    if (In_UTF8.IsEmpty())
+    {
+        return nullptr;
+    }
 
-    return true;
+    UBytesObject_64* BytesObject = NewObject<UBytesObject_64>();
+
+    FTCHARToUTF8 Source = FTCHARToUTF8(In_UTF8.GetCharArray().GetData());
+    BytesObject->ByteArray.Append((uint8*)Source.Get(), Source.Length());
+
+    return BytesObject;
+}
+
+UBytesObject_64* UExtendedVarsBPLibrary::Base64_To_Bytes_x64(FString In_Base64, bool bUseUrl)
+{
+    if (In_Base64.IsEmpty())
+    {
+        return nullptr;
+    }
+
+    FWideStringView String = In_Base64;
+
+    UBytesObject_64* BytesObject = NewObject<UBytesObject_64>();
+
+    FBase64::Decode(String.GetData(), String.Len(), BytesObject->ByteArray.GetData(), bUseUrl ? EBase64Mode::UrlSafe : EBase64Mode::Standard);
+
+    return BytesObject;
+}
+
+TArray<uint8> UExtendedVarsBPLibrary::Hex_To_Bytes_x86(FString In_Hex)
+{
+    TArray<uint8> Array_Bytes;
+
+    if (In_Hex.IsEmpty())
+    {
+        return Array_Bytes;
+    }
+
+    Array_Bytes.AddUninitialized(In_Hex.Len() / 2);
+    HexToBytes(In_Hex, Array_Bytes.GetData());
+
+    return Array_Bytes;
+}
+
+TArray<uint8> UExtendedVarsBPLibrary::UTF8_To_Bytes_x86(FString In_UTF8)
+{
+    TArray<uint8> Array_Bytes;
+
+    if (In_UTF8.IsEmpty())
+    {
+        return Array_Bytes;
+    }
+
+    FTCHARToUTF8 Source = FTCHARToUTF8(In_UTF8.GetCharArray().GetData());
+    Array_Bytes.Append((uint8*)Source.Get(), Source.Length());
+
+    return Array_Bytes;
+}
+
+TArray<uint8> UExtendedVarsBPLibrary::Base64_To_Bytes_x86(FString In_Base64, bool bUseUrl)
+{
+    TArray<uint8> Array_Bytes;
+
+    if (In_Base64.IsEmpty())
+    {
+        return Array_Bytes;
+    }
+
+    FBase64::Decode(In_Base64, Array_Bytes, bUseUrl ? EBase64Mode::UrlSafe : EBase64Mode::Standard);
+
+    return Array_Bytes;
 }
 
 // String Group.
 
-bool UExtendedVarsBPLibrary::Base64ToString(FString In_Base64, FString& OutDecoded)
+FString UExtendedVarsBPLibrary::FDateTime_To_String(FDateTime In_Time)
 {
-    if (In_Base64.IsEmpty() == true)
-    {
-        return false;
-    }
-
-    return FBase64::Decode(In_Base64, OutDecoded);
+    return In_Time.ToString();
 }
 
-FString UExtendedVarsBPLibrary::Int64ToString(int64 TargetInt64)
+FString UExtendedVarsBPLibrary::Int64_To_String(int64 TargetInt64)
 {
     return FString::Printf(TEXT("%llu"), TargetInt64);
 }
 
-TArray<FString> UExtendedVarsBPLibrary::StringSort(TArray<FString> TargetArray, bool bIsDescending)
+bool UExtendedVarsBPLibrary::String_To_Int32(int32& Out_Int32, FString SourceString)
 {
-    TArray<FString> SortedArray = TargetArray;
-
-    if (bIsDescending == true)
+    if (SourceString.IsEmpty())
     {
-        SortedArray.Sort([](const FString Value1, const FString Value2)
-            {
-                return Value1 < Value2;
-            });
+        return false;
     }
+    
+    Out_Int32 = FCString::Atoi(*SourceString);
 
-    else
-    {
-        SortedArray.Sort([](const FString Value1, const FString Value2)
-            {
-                return Value1 > Value2;
-            });
-    }
-
-    return SortedArray;
+    return true;
 }
 
-// Math Group | Integer.
+bool UExtendedVarsBPLibrary::String_To_Int64(int64& Out_Int64, FString SourceString)
+{
+    if (SourceString.IsEmpty())
+    {
+        return false;
+    }
 
-uint8 UExtendedVarsBPLibrary::NumberToByte(int32 In_Number)
+    Out_Int64 = FCString::Atoi64(*SourceString);
+
+    return true;
+}
+
+bool UExtendedVarsBPLibrary::String_To_Double(double& Out_Double, FString SourceString)
+{
+    if (SourceString.IsEmpty())
+    {
+        return false;
+    }
+
+    Out_Double = FCString::Atod(*SourceString);
+
+    return true;
+}
+
+bool UExtendedVarsBPLibrary::String_To_Float(float& Out_Float, FString SourceString)
+{
+    if (SourceString.IsEmpty())
+    {
+        return false;
+    }
+
+    Out_Float = FCString::Atof(*SourceString);
+
+    return true;
+}
+
+bool UExtendedVarsBPLibrary::String_To_Hex(FString& Out_Hex, FString SourceString, bool bIsLower)
+{
+    if (SourceString.IsEmpty())
+    {
+        return false;
+    }
+
+    FTCHARToUTF8 Source = FTCHARToUTF8(SourceString.GetCharArray().GetData());
+   
+    TArray<uint8> Temp_Buffer;
+    Temp_Buffer.Append((uint8*)Source.Get(), Source.Length());
+    
+    Out_Hex = bIsLower ? BytesToHexLower(Temp_Buffer.GetData(), Temp_Buffer.Num()) : BytesToHex(Temp_Buffer.GetData(), Temp_Buffer.Num());
+
+    return true;
+}
+
+bool UExtendedVarsBPLibrary::String_To_Base64(FString& Out_Base64, FString SourceString, bool bUseUrl)
+{
+    if (SourceString.IsEmpty())
+    {
+        return false;
+    }
+
+    TArray<uint8> Temp_Buffer;
+    FTCHARToUTF8 Source = FTCHARToUTF8(SourceString.GetCharArray().GetData());
+    Temp_Buffer.Append((uint8*)Source.Get(), Source.Length());
+
+    Out_Base64 = FBase64::Encode(Temp_Buffer, bUseUrl ? EBase64Mode::UrlSafe : EBase64Mode::Standard);
+
+    return true;
+}
+
+bool UExtendedVarsBPLibrary::Hex_To_String(FString& Out_Decoded, FString In_Hex)
+{
+    if (In_Hex.IsEmpty())
+    {
+        return false;
+    }
+
+    TArray<uint8> Temp_Buffer;
+    Temp_Buffer.AddUninitialized(In_Hex.Len() / 2);
+    HexToBytes(In_Hex, Temp_Buffer.GetData());
+
+    int32 Index = 0;
+    int32 Length = 0x7FFFFFFF;
+
+    if (Index < 0)
+    {
+        Length += Index;
+        Index = 0;
+    }
+
+    if (Length > Temp_Buffer.Num() - Index)
+    {
+        Length = Temp_Buffer.Num() - Index;
+    }
+
+    const FUTF8ToTCHAR Src(reinterpret_cast<const ANSICHAR*>(Temp_Buffer.GetData() + Index), Length);
+    Out_Decoded = FString(Src.Length(), Src.Get());
+
+    return true;
+}
+
+bool UExtendedVarsBPLibrary::Base64_To_String(FString& Out_Decoded, FString In_Base64, bool bUseUrl)
+{
+    if (In_Base64.IsEmpty())
+    {
+        return false;
+    }
+
+    TArray<uint8> Temp_Array;
+    FBase64::Decode(In_Base64, Temp_Array, bUseUrl ? EBase64Mode::UrlSafe : EBase64Mode::Standard);
+
+    int32 Index = 0;
+    int32 Length = 0x7FFFFFFF;
+
+    if (Index < 0)
+    {
+        Length += Index;
+        Index = 0;
+    }
+
+    if (Length > Temp_Array.Num() - Index)
+    {
+        Length = Temp_Array.Num() - Index;
+    }
+
+    const FUTF8ToTCHAR Src(reinterpret_cast<const ANSICHAR*>(Temp_Array.GetData() + Index), Length);
+    Out_Decoded = FString(Src.Length(), Src.Get());
+
+    return true;
+}
+
+// Integer Group.
+
+uint8 UExtendedVarsBPLibrary::Int32_To_Byte(int32 In_Number)
 {
     if (In_Number >= 0 && In_Number <= 255)
     {
@@ -610,7 +942,7 @@ uint8 UExtendedVarsBPLibrary::NumberToByte(int32 In_Number)
     return 0;
 }
 
-int32 UExtendedVarsBPLibrary::Int32PlaceFamily(int32 TargetInteger)
+int32 UExtendedVarsBPLibrary::Int32_Place_Family(int32 TargetInteger)
 {
     /*
     10 power integer character lenght minus 1 will equal its place family.
@@ -620,10 +952,10 @@ int32 UExtendedVarsBPLibrary::Int32PlaceFamily(int32 TargetInteger)
     return (int32)FMath::Pow(10.0, (double)((FString::FromInt(TargetInteger).Len()) - 1));
 }
 
-int32 UExtendedVarsBPLibrary::Int32TruncateToWholeBig(int32 TargetInteger)
+int32 UExtendedVarsBPLibrary::Int32_Truncate_To_Big(int32 TargetInteger)
 {
     double Remainder;
-    UKismetMathLibrary::FMod(TargetInteger, UExtendedVarsBPLibrary::Int32PlaceFamily(TargetInteger), Remainder);
+    UKismetMathLibrary::FMod(TargetInteger, UExtendedVarsBPLibrary::Int32_Place_Family(TargetInteger), Remainder);
 
     if (Remainder != 0)
     {
@@ -641,7 +973,7 @@ int32 UExtendedVarsBPLibrary::Int32TruncateToWholeBig(int32 TargetInteger)
     }
 }
 
-int32 UExtendedVarsBPLibrary::Int32TruncateToWholeSmall(int32 TargetInteger)
+int32 UExtendedVarsBPLibrary::Int32_Truncate_To_Small(int32 TargetInteger)
 {
     double Remainder;
     UKismetMathLibrary::FMod(TargetInteger, 10, Remainder);
@@ -662,57 +994,15 @@ int32 UExtendedVarsBPLibrary::Int32TruncateToWholeSmall(int32 TargetInteger)
     }
 }
 
-TArray<int32> UExtendedVarsBPLibrary::Int32Sort(TArray<int32> TargetArray, bool bIsDescending)
-{
-    TArray<int32> SortedArray = TargetArray;
+// Float/Double Group.
 
-    if (bIsDescending == true)
-    {
-        SortedArray.Sort([](const int32 Value1, const int32 Value2)
-            {
-                return Value1 < Value2;
-            });
-    }
-
-    else
-    {
-        SortedArray.Sort([](const int32 Value1, const int32 Value2)
-            {
-                return Value1 > Value2;
-            });
-    }
-
-    return SortedArray;
-}
-
-void UExtendedVarsBPLibrary::Int32ToGraphics(EGraphicsType GraphicsType, int32 TargetInteger, int32 FullInteger, float& Scale, float& UnitValue)
-{
-    int32 FullScale = 0;
-
-    switch (GraphicsType)
-    {
-        case EGraphicsType::ChartPie:
-            FullScale = 360;
-            break;
-        case EGraphicsType::ChartBar:
-            FullScale = 100;
-            break;
-    }
-    
-    Scale = (static_cast<float>(TargetInteger) * FullScale) / FullInteger;
-    
-    UnitValue = Scale / FullScale;
-}
-
-// Math Group | Float.
-
-float UExtendedVarsBPLibrary::FloatPrecision(float TargetFloat, int32 Precision)
+float UExtendedVarsBPLibrary::Float_Precision(float TargetFloat, int32 Precision)
 {
     int32 PrecisionFixer = pow(10, Precision);
     return floor(PrecisionFixer * TargetFloat) / PrecisionFixer;
 }
 
-int32 UExtendedVarsBPLibrary::FloatFractionCount(float TargetFloat)
+int32 UExtendedVarsBPLibrary::Float_Fraction_Count(float TargetFloat)
 {
     FString FractionString;
     (FString::SanitizeFloat(UKismetMathLibrary::Fraction(TargetFloat))).Split(TEXT("."), NULL, &FractionString, ESearchCase::IgnoreCase, ESearchDir::FromStart);
@@ -720,9 +1010,9 @@ int32 UExtendedVarsBPLibrary::FloatFractionCount(float TargetFloat)
     return FractionString.Len();
 }
 
-float UExtendedVarsBPLibrary::FloatRoundNext(float TargetFloat, double Decimal)
+float UExtendedVarsBPLibrary::Float_Round_Next(float TargetFloat, double Decimal)
 {
-    int32 FractionCount = UExtendedVarsBPLibrary::FloatFractionCount(TargetFloat);
+    int32 FractionCount = UExtendedVarsBPLibrary::Float_Fraction_Count(TargetFloat);
     
     if (FractionCount > Decimal)
     {
@@ -735,55 +1025,9 @@ float UExtendedVarsBPLibrary::FloatRoundNext(float TargetFloat, double Decimal)
     }
 }
 
-TArray<float> UExtendedVarsBPLibrary::FloatSort(TArray<float> TargetArray, bool bIsDescending)
-{
-    TArray<float> SortedArray = TargetArray;
-
-    if (bIsDescending == true)
-    {
-        SortedArray.Sort([](const float Value1, const float Value2)
-            {
-                return Value1 < Value2;
-            });
-    }
-
-    else
-    {
-        SortedArray.Sort([](const float Value1, const float Value2)
-            {
-                return Value1 > Value2;
-            });
-    }
-
-    return SortedArray;
-}
-
 // Time Group.
 
-TArray<FDateTime> UExtendedVarsBPLibrary::TimeSort(TArray<FDateTime> TargetArray, bool bIsDescending)
-{
-    TArray<FDateTime> SortedArray = TargetArray;
-
-    if (bIsDescending == true)
-    {
-        SortedArray.Sort([](const FDateTime Value1, const FDateTime Value2)
-            {
-                return Value1 < Value2;
-            });
-    }
-
-    else
-    {
-        SortedArray.Sort([](const FDateTime Value1, const FDateTime Value2)
-            {
-                return Value1 > Value2;
-            });
-    }
-
-    return SortedArray;
-}
-
-bool UExtendedVarsBPLibrary::TimeCounterToFDateTime(FDateTime& Out_Time, FString In_Time, FString Delimiter, EStringToDate ConvertType)
+bool UExtendedVarsBPLibrary::Time_Counter_To_FDateTime(FDateTime& Out_Time, FString In_Time, FString Delimiter, EStringToDate ConvertType)
 {
     if (In_Time.IsEmpty())
     {
@@ -828,11 +1072,6 @@ bool UExtendedVarsBPLibrary::TimeCounterToFDateTime(FDateTime& Out_Time, FString
     default:
         return false;
     }
-}
-
-FString UExtendedVarsBPLibrary::FDateTimeToString(FDateTime In_Time)
-{
-    return In_Time.ToString();
 }
 
 // Render Group.
