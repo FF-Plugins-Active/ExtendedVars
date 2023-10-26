@@ -27,8 +27,12 @@ THIRD_PARTY_INCLUDES_START
 #include <sstream>
 #include <iostream>
 #include <iomanip>
-#include <numbers>                              // C++20 math library.
+
+#ifdef _WIN64
+#include <numbers>                              // C++20 math library. Windowas only.
 #include <cmath>
+#endif
+
 THIRD_PARTY_INCLUDES_END
 
 UExtendedVarsBPLibrary::UExtendedVarsBPLibrary(const FObjectInitializer& ObjectInitializer)
@@ -200,18 +204,12 @@ FString UExtendedVarsBPLibrary::Android_Path_Helper(FString In_FileName)
 {
     if (UGameplayStatics::GetPlatformName() == "Android" || UGameplayStatics::GetPlatformName() == "IOS")
     {
-        if (In_FileName.IsEmpty() == true)
-        {
-            return "";
-        }
-
         FString Path_Referance = FPlatformFileManager::Get().GetPlatformFile().ConvertToAbsolutePathForExternalAppForRead(*(FPaths::ProjectSavedDir()));
 
         TArray<FString> Path_Sections;
         Path_Referance.ParseIntoArray(Path_Sections, TEXT("/"), true);
-        FString Path_Absolute = "/" + Path_Sections[0] + "/" + Path_Sections[1] + "/" + Path_Sections[2] + "/" + In_FileName;
-
-        return Path_Absolute;
+        
+        return "/" + Path_Sections[0] + "/" + Path_Sections[1] + "/" + Path_Sections[2] + "/" + In_FileName;
     }
 
     else
