@@ -366,7 +366,7 @@ bool UExtendedVarsBPLibrary::Read_File_From_Path_64(UBytesObject_64*& Out_Bytes_
     {
         FPaths::MakePlatformFilename(Path);
 
-        _Post_ _Notnull_ FILE* File = nullptr;
+        FILE* File = nullptr;
 
 #ifdef _WIN64
 
@@ -430,7 +430,7 @@ bool UExtendedVarsBPLibrary::Read_File_From_Path_32(TArray<uint8>& Out_Bytes, FS
     {
         FPaths::MakePlatformFilename(Path);
 
-        _Post_ _Notnull_ FILE* File = nullptr;
+        FILE* File = nullptr;
 
 #ifdef _WIN64
 
