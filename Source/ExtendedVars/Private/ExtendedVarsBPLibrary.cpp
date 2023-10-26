@@ -413,7 +413,7 @@ bool UExtendedVarsBPLibrary::Read_File_From_Path_64(UBytesObject_64*& Out_Bytes_
     return true;
 }
 
-bool UExtendedVarsBPLibrary::Read_File_From_Path_32(TArray<uint8> Out_Bytes, FString In_Path, bool bUseLowLevel)
+bool UExtendedVarsBPLibrary::Read_File_From_Path_32(TArray<uint8>& Out_Bytes, FString In_Path, bool bUseLowLevel)
 {
     if (In_Path.IsEmpty())
     {

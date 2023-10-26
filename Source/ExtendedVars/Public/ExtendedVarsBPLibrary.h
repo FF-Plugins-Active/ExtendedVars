@@ -115,7 +115,7 @@ class UExtendedVarsBPLibrary : public UBlueprintFunctionLibrary
 	static EXTENDEDVARS_API bool Read_File_From_Path_64(UBytesObject_64*& Out_Bytes_Object, FString In_Path, bool bUseLowLevel = false);
 
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Read File from Path (32 Bit)", ToolTip = "You need to use absolute path.", Keywords = "read, load, path, bytes, import, file"), Category = "Extended Variables|Read")
-	static EXTENDEDVARS_API bool Read_File_From_Path_32(TArray<uint8> Out_Bytes, FString In_Path, bool bUseLowLevel = false);
+	static EXTENDEDVARS_API bool Read_File_From_Path_32(TArray<uint8>& Out_Bytes, FString In_Path, bool bUseLowLevel = false);
 
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Read Text from Path", ToolTip = "You need to use absolute path.", Keywords = "read, load, path, bytes, import, text"), Category = "Extended Variables|Read")
 	static EXTENDEDVARS_API bool Read_Text_From_Path(FString& Out_String, FString In_Path);
