@@ -41,6 +41,7 @@ public class ExtendedVars : ModuleRules
                 "RHI",				// UMediaTexture : FRHICommandListImmediate
 				"RenderCore",		// UMediaTexture : GetImmediateCommandList_ForRenderCommand()
 				"UMG",
+                "ImageWrapper",
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

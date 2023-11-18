@@ -243,7 +243,7 @@ class UExtendedVarsBPLibrary : public UBlueprintFunctionLibrary
 	static EXTENDEDVARS_API bool Export_T2D_Jpeg(FString& Out_Path, UTexture2D* Texture, FString In_Path, bool bUseTemp);
 
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Export Texture2D As Bytes Low Level", Keywords = "t2d, texture2d, utexture2d, export, byte, bytes, low, level"), Category = "Extended Variables|Render")
-	static EXTENDEDVARS_API bool Export_T2D_Bytes(TArray<uint8>& Out_Bytes, UTexture2D* Texture);
+	static EXTENDEDVARS_API bool Export_T2D_Bytes(TArray<uint8>& Out_Bytes, UTexture2D* Texture, bool bWithoutExtension);
 
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Import Texture2D From Bytes", Keywords = "t2d, texture2d, utexture2d, import, create, bytes"), Category = "Extended Variables|Render")
 	static EXTENDEDVARS_API bool Import_T2D_Bytes(UTexture2D*& Out_Texture, TArray<uint8> In_Bytes, bool bUseSrgb);

@@ -13,12 +13,15 @@
 #include "HAL/FileManagerGeneric.h"
 
 #include "ImageUtils.h"                         // Save Texture as Jpeg
+#include "IImageWrapper.h"
+#include "IImageWrapperModule.h"
+
 #include "Slate/WidgetRenderer.h"               // Widget to Texture2D
 #include "Runtime/UMG/Public/UMG.h"             // Widget to Texture2D
 #include "Kismet/KismetRenderingLibrary.h"	    // Texture2D
-
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetStringLibrary.h"
+
 #include "Containers/UnrealString.h"            // Hex to Bytes + Bytes to Hex
 
 THIRD_PARTY_INCLUDES_START
@@ -1169,40 +1172,68 @@ bool UExtendedVarsBPLibrary::Export_T2D_Colors(TArray<FColor>& Out_Array, UTextu
     }
 }
 
-bool UExtendedVarsBPLibrary::Export_T2D_Bytes(TArray<uint8>& Out_Bytes, UTexture2D* Texture)
+bool UExtendedVarsBPLibrary::Export_T2D_Bytes(TArray<uint8>& Out_Bytes, UTexture2D* Texture, bool bWithoutExtension)
 {
     if (IsValid(Texture) == false)
     {
+        UE_LOG(LogTemp, Warning, TEXT("Texture is not valid."));
         return false;
     }
 
-    if (Texture->GetPixelFormat() == EPixelFormat::PF_B8G8R8A8 && Texture->CompressionSettings.GetIntValue() == 5 || Texture->CompressionSettings.GetIntValue() == 7)
+    if (Texture->GetPixelFormat() != EPixelFormat::PF_B8G8R8A8)
     {
-        FTexture2DMipMap& Texture_Mip = Texture->GetPlatformData()->Mips[0];
-        void* Texture_Data = Texture_Mip.BulkData.Lock(LOCK_READ_WRITE);
+        UE_LOG(LogTemp, Warning, TEXT("Texture format is not B8G8R8A8"));
+        return false;
+    }
 
-        TArray<uint8> Array_Bytes;
-        size_t Lenght = static_cast<size_t>(Texture->GetSizeX() * Texture->GetSizeY() * 4);
-        Array_Bytes.SetNum(Lenght);
-        FMemory::Memcpy(Array_Bytes.GetData(), Texture_Data, Lenght);
+    if (Texture->CompressionSettings.GetIntValue() != 5 && Texture->CompressionSettings.GetIntValue() != 7)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Compression setting is not true."));
+        return false;
+    }
+
+    int32 Texture_Width = Texture->GetSizeX();
+    int32 Texture_Height = Texture->GetSizeY();
+    size_t Lenght = static_cast<size_t>(Texture->GetSizeX() * Texture->GetSizeY() * 4);
+
+    FTexture2DMipMap& Texture_Mip = Texture->GetPlatformData()->Mips[0];
+    void* Texture_Data = Texture_Mip.BulkData.Lock(LOCK_READ_WRITE);
+
+    if (bWithoutExtension)
+    {
+        Out_Bytes.SetNum(Lenght);
+        FMemory::Memcpy(Out_Bytes.GetData(), Texture_Data, Lenght);
 
         Texture_Mip.BulkData.Unlock();
 
-        if (Array_Bytes.Num() > 0)
-        {
-            Out_Bytes = Array_Bytes;
-            return true;
-        }
-
-        else
-        {
-            return false;
-        }
+        return true;
     }
 
     else
     {
-        return false;
+        TArray<FColor> Array_Colors;
+        Array_Colors.SetNum(Texture_Width * Texture_Height);
+        FMemory::Memcpy(Array_Colors.GetData(), static_cast<FColor*>(Texture_Data), Lenght);
+
+        Texture_Mip.BulkData.Unlock();
+
+        TArray<FColor> MutablePixels = Array_Colors;
+        for (int32 i = 0; i < Texture_Width * Texture_Height; i++)
+        {
+            MutablePixels[i].R = Array_Colors[i].B;
+            MutablePixels[i].B = Array_Colors[i].R;
+        }
+
+        IImageWrapperModule& ImageWrapperModule = FModuleManager::LoadModuleChecked<IImageWrapperModule>(FName("ImageWrapper"));
+        TSharedPtr<IImageWrapper> ImageWrapper = ImageWrapperModule.CreateImageWrapper(EImageFormat::PNG);
+        if (!ImageWrapper.IsValid() || !ImageWrapper->SetRaw(&MutablePixels[0], MutablePixels.Num() * sizeof(FColor), Texture_Width, Texture_Height, ERGBFormat::RGBA, 8))
+        {
+            return false;
+        }
+
+        Out_Bytes = ImageWrapper->GetCompressed(100);
+
+        return true;
     }
 }
 
