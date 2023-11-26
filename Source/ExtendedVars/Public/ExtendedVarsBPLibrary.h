@@ -283,7 +283,7 @@ class UExtendedVarsBPLibrary : public UBlueprintFunctionLibrary
 
 	// Logs
 
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Mongoose HTTP Async - Log"), Category = "Frozen Forest|Extended Variables|Logs")
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Log String"), Category = "Frozen Forest|Extended Variables|Logs")
 	static void LogString(int32 InLogLevel, FString Log);
 
 };
