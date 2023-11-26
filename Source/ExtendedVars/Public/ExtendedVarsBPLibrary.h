@@ -281,4 +281,9 @@ class UExtendedVarsBPLibrary : public UBlueprintFunctionLibrary
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Import Texture2D From Bytes (Game Thread - Low Level)", Keywords = "t2d, texture2d, utexture2d, 2d, import, create, bytes, low, level"), Category = "Frozen Forest|Extended Variables|Render")
 	static EXTENDEDVARS_API bool Import_T2D_Bytes_LowLevel(UTexture2D*& Out_Texture, TArray<uint8> In_Bytes, FVector2D Size, bool bUseSrgb);
 
+	// Logs
+
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Mongoose HTTP Async - Log"), Category = "Frozen Forest|Extended Variables|Logs")
+	static void LogString(int32 InLogLevel, FString Log);
+
 };

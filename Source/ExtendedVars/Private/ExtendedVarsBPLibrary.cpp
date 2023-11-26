@@ -1590,3 +1590,28 @@ bool UExtendedVarsBPLibrary::Import_T2D_Bytes_LowLevel(UTexture2D*& Out_Texture,
 
     return true;
 }
+
+void UExtendedVarsBPLibrary::LogString(int32 InLogLevel, FString Log)
+{
+    switch (InLogLevel)
+    {
+
+    case 0:
+
+        UE_LOG(LogTemp, Display, TEXT("%s"), *FString(Log));
+        return;
+    
+    case 1:
+        
+        UE_LOG(LogTemp, Warning, TEXT("%s"), *FString(Log));
+        return;
+    
+    case 2:
+
+        UE_LOG(LogTemp, Error, TEXT("%s"), *FString(Log));
+        return;
+
+    default:
+        break;
+    }
+}
