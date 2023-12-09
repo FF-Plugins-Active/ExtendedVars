@@ -42,6 +42,7 @@ public class ExtendedVars : ModuleRules
 				"RenderCore",		// UMediaTexture : GetImmediateCommandList_ForRenderCommand()
 				"UMG",
                 "ImageWrapper",
+                "MediaAssets"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

@@ -7,7 +7,7 @@
 // Custom Includes.
 #include "Extended_Enums.h"
 
-// UE Includes.
+// UE Font Includes.
 #include "Engine/FontFace.h"
 
 #include "ExtendedVarsBPLibrary.generated.h"
@@ -107,7 +107,7 @@ class UExtendedVarsBPLibrary : public UBlueprintFunctionLibrary
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Runtime Font Release", ToolTip = "", Keywords = "runtime, font, release"), Category = "Frozen Forest|Extended Variables|Font")
 	static EXTENDEDVARS_API bool Runtime_Font_Release(UPARAM(ref)URuntimeFont*& In_RuntimeFont);
 
-	// Sorters
+	// Sorters.
 
 	UFUNCTION(BlueprintPure, meta = (DisplayName = "Sort Strings", ToolTip = "Description.", Keywords = "string, fstring, ascending, descending, sort"), Category = "Frozen Forest|Extended Variables|Sorters")
 	static EXTENDEDVARS_API TArray<FString> Sort_String(TArray<FString> TargetArray, bool bIsDescending);
@@ -254,34 +254,37 @@ class UExtendedVarsBPLibrary : public UBlueprintFunctionLibrary
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Widget To Texture Render Target 2D", Keywords = "texture, render, target, 2d, widget, convert"), Category = "Frozen Forest|Extended Variables|Render")
 	static EXTENDEDVARS_API UTextureRenderTarget2D* Widget_To_TRT2D(FString& OutCode, UUserWidget* InWidget, FVector2D InDrawSize);
 
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Texture Render Target 2D to UTexture2D", Keywords = "texture, render, target, 2d, widget, convert"), Category = "Frozen Forest|Extended Variables|Render")
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Texture Render Target 2D to UTexture2D", Keywords = "texture, render, target, widget, convert"), Category = "Frozen Forest|Extended Variables|Render")
 	static EXTENDEDVARS_API void TRT2D_To_T2D(FDelegate_T2D Delegate_T2D, UTextureRenderTarget2D* In_TRT_2D);
 
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Export Texture2D As Bitmap", Keywords = "t2d, texture2d, utexture2d, export, bitmap, bmp"), Category = "Frozen Forest|Extended Variables|Render")
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Export Texture2D As Bitmap", Keywords = "t2d, texture, texture2d, utexture2d, export, bitmap, bmp"), Category = "Frozen Forest|Extended Variables|Render")
 	static EXTENDEDVARS_API bool Export_T2D_Bitmap(FString& Out_Path, UTexture2D* Texture, FString In_Path, bool bUseTemp);
 
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Export Texture2D As Jpeg", Keywords = "t2d, texture2d, utexture2d, export, jpeg, jpg"), Category = "Frozen Forest|Extended Variables|Render")
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Export Texture2D As Jpeg", Keywords = "t2d, texture, texture2d, utexture2d, export, jpeg, jpg"), Category = "Frozen Forest|Extended Variables|Render")
 	static EXTENDEDVARS_API bool Export_T2D_Jpeg(FString& Out_Path, UTexture2D* Texture, FString In_Path, bool bUseTemp);
 
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Export Texture2D As Colors (Game Thread)", Keywords = "t2d, texture2d, utexture2d, get, export, color, fcolor, array"), Category = "Frozen Forest|Extended Variables|Render")
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Export Texture2D As Colors (Game Thread)", Keywords = "t2d, texture, texture2d, utexture2d, get, export, color, fcolor, array"), Category = "Frozen Forest|Extended Variables|Render")
 	static EXTENDEDVARS_API bool Export_T2D_Colors(TArray<FColor>& Out_Array, UTexture2D* Texture);
 
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Export Texture2D As Bytes (Game Thread)", Keywords = "t2d, texture2d, utexture2d, 2d, get, export, byte, bytes, array"), Category = "Frozen Forest|Extended Variables|Render")
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Export Texture2D As Bytes (Game Thread)", Keywords = "t2d, texture, texture2d, utexture2d, get, export, byte, bytes, array"), Category = "Frozen Forest|Extended Variables|Render")
 	static EXTENDEDVARS_API bool Export_T2D_Bytes(TArray<uint8>& Out_Array, UTexture2D* Texture);
 
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Export Texture2D As Bytes (Render Thread)", Keywords = "t2d, texture2d, utexture2d, 2d, get, export, byte, bytes, array, render, thread"), Category = "Frozen Forest|Extended Variables|Render")
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Export Texture2D As Bytes (Render Thread)", Keywords = "t2d, texture, texture2d, utexture2d, get, export, byte, bytes, array, render, thread"), Category = "Frozen Forest|Extended Variables|Render")
 	static EXTENDEDVARS_API void Export_T2D_Bytes_Render_Thread(FDelegateBytes_32 DelegateBytes, UTexture2D* Texture, bool bWithoutExtension);
 
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Export Texture Render Target 2D As Bytes (Render Thread)", Keywords = "trt2d, 2d, render, target, thread, get, export, byte, bytes, array"), Category = "Frozen Forest|Extended Variables|Render")
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Export Texture Render Target 2D As Bytes (Render Thread)", Keywords = "trt2d, texture, render, target, thread, get, export, byte, bytes, array"), Category = "Frozen Forest|Extended Variables|Render")
 	static EXTENDEDVARS_API void Export_TRT2D_Bytes_Render_Thread(FDelegateBytes_32 DelegateBytes, UTextureRenderTarget2D* In_TRT_2D, bool bWithoutExtension);
 
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Import Texture2D From Bytes (Game Thread Image Utils)", Keywords = "t2d, texture2d, utexture2d, 2d, import, create, bytes"), Category = "Frozen Forest|Extended Variables|Render")
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Export Media Textures As Bytes (Render Thread)", Keywords = "media, texture, render, thread, get, export, byte, bytes, array"), Category = "Frozen Forest|Extended Variables|Render")
+	static EXTENDEDVARS_API void Export_MT_Bytes_Render_Thread(FDelegateBytes_32 DelegateBytes, UMediaTexture* In_MT_2D, bool bWithoutExtension);
+
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Import Texture2D From Bytes (Game Thread Image Utils)", Keywords = "t2d, texture, texture2d, utexture2d, import, create, bytes"), Category = "Frozen Forest|Extended Variables|Render")
 	static EXTENDEDVARS_API bool Import_T2D_Bytes(UTexture2D*& Out_Texture, TArray<uint8> In_Bytes, bool bUseSrgb);
 
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Import Texture2D From Bytes (Game Thread - Low Level)", Keywords = "t2d, texture2d, utexture2d, 2d, import, create, bytes, low, level"), Category = "Frozen Forest|Extended Variables|Render")
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Import Texture2D From Bytes (Game Thread - Low Level)", Keywords = "t2d, texture, texture2d, utexture2d, import, create, bytes, low, level"), Category = "Frozen Forest|Extended Variables|Render")
 	static EXTENDEDVARS_API bool Import_T2D_Bytes_LowLevel(UTexture2D*& Out_Texture, TArray<uint8> In_Bytes, FVector2D Size, bool bUseSrgb);
 
-	// Logs
+	// Logs.
 
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Log String"), Category = "Frozen Forest|Extended Variables|Logs")
 	static void LogString(int32 InLogLevel, FString Log);

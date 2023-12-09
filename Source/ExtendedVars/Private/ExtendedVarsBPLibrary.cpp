@@ -3,44 +3,8 @@
 #include "ExtendedVarsBPLibrary.h"
 #include "ExtendedVars.h"
 
-// UE Math Includes
-#include "Algo/Reverse.h"                       // Reverse array
-#include "Kismet/KismetMathLibrary.h"
-
-// UE File Includes
-#include "Misc/Base64.h"                        // Encode & Decode Base64
-#include "Misc/FileHelper.h"                    // Load File to Array
-#include "HAL/FileManager.h"                    // Save texture as bitmap and select file from dialog.
-#include "HAL/FileManagerGeneric.h"
-
-// UE Widget Includes
-#include "Slate/WidgetRenderer.h"               // Widget to Texture2D
-#include "Runtime/UMG/Public/UMG.h"             // Widget to Texture2D
-
-// UE Render Includes.
-#include "RHICommandList.h"
-#include "ImageUtils.h"                         // Save Texture as Jpeg
-#include "IImageWrapper.h"
-#include "IImageWrapperModule.h"
-#include "Kismet/KismetRenderingLibrary.h"	    // Texture2D
-
-// UE String Includes.
-#include "Containers/UnrealString.h"            // Hex to Bytes + Bytes to Hex
-#include "Kismet/KismetStringLibrary.h"
-
-THIRD_PARTY_INCLUDES_START
-#include <cstdlib>
-#include <string>
-#include <sstream>
-#include <iostream>
-#include <iomanip>
-
-#ifdef _WIN64
-#include <numbers>                              // C++20 math library. Windowas only.
-#include <cmath>
-#endif
-
-THIRD_PARTY_INCLUDES_END
+// Custom Includes.
+#include "Extended_Includes.h"
 
 UExtendedVarsBPLibrary::UExtendedVarsBPLibrary(const FObjectInitializer& ObjectInitializer)
 : Super(ObjectInitializer)
@@ -1547,6 +1511,106 @@ void UExtendedVarsBPLibrary::Export_TRT2D_Bytes_Render_Thread(FDelegateBytes_32 
     );
 }
 
+void UExtendedVarsBPLibrary::Export_MT_Bytes_Render_Thread(FDelegateBytes_32 DelegateBytes, UMediaTexture* In_MT_2D, bool bWithoutExtension)
+{
+    
+    ENQUEUE_RENDER_COMMAND(ReadUTexture2D)([In_MT_2D, DelegateBytes, bWithoutExtension](FRHICommandList& RHICmdList)
+        {
+            FTextureResource* MT_Resource = In_MT_2D->GetResource();
+
+            int32 Size_X = MT_Resource->GetSizeX();
+            int32 Size_Y = MT_Resource->GetSizeY();
+            int32 Size_Pixel = sizeof(FColor);
+            size_t Total = static_cast<size_t>(Size_X * Size_Y);
+            size_t Lenght = Total * Size_Pixel;
+
+            FRHITextureCreateDesc Desc =
+                FRHITextureCreateDesc::Create2D(TEXT("CopiedTextureDescription"))
+                .SetExtent(Size_X, Size_Y)
+                .SetFormat(EPixelFormat::PF_R8G8B8A8)
+                .SetInitialState(ERHIAccess::CopySrc);
+
+            FRHITexture* CopiedTextureResource = RHICreateTexture(Desc);
+            FRHICopyTextureInfo CopyTextureInfo;
+            RHICmdList.CopyTexture(MT_Resource->GetTextureRHI(), CopiedTextureResource, CopyTextureInfo);
+
+            uint32 DestStride = 0;
+            void* Texture_Data = RHILockTexture2D(CopiedTextureResource, 0, RLM_ReadOnly, DestStride, false);
+
+            FBytesObject_32 BytesObject;
+
+            if (!Texture_Data)
+            {
+                RHIUnlockTexture2D(CopiedTextureResource, 0, false, true);
+
+                AsyncTask(ENamedThreads::GameThread, [DelegateBytes, BytesObject]()
+                    {
+                        DelegateBytes.ExecuteIfBound(false, "Export Texture Render Target 2D as Bytes -> Texture data is not valid.", BytesObject);
+                    }
+                );
+
+                return;
+            }
+
+            if (bWithoutExtension)
+            {
+                BytesObject.ByteArray.SetNum(Lenght);
+                FMemory::Memcpy(BytesObject.ByteArray.GetData(), (uint8*)Texture_Data, Lenght);
+                RHIUnlockTexture2D(CopiedTextureResource, 0, false, true);
+
+                AsyncTask(ENamedThreads::GameThread, [DelegateBytes, BytesObject]()
+                    {
+                        DelegateBytes.ExecuteIfBound(true, "Export Texture Render Target 2D as Bytes -> Without Extension = true -> Successful.", BytesObject);
+                    }
+                );
+
+                return;
+            }
+
+            else
+            {
+                TArray<FColor> Array_Colors;
+                Array_Colors.SetNum(Total);
+                FMemory::Memcpy(Array_Colors.GetData(), static_cast<FColor*>(Texture_Data), Lenght);
+
+                TArray<FColor> MutablePixels = Array_Colors;
+                for (int32 i = 0; i < Total; i++)
+                {
+                    MutablePixels[i].R = Array_Colors[i].B;
+                    MutablePixels[i].B = Array_Colors[i].R;
+                }
+
+                IImageWrapperModule& ImageWrapperModule = FModuleManager::LoadModuleChecked<IImageWrapperModule>(FName("ImageWrapper"));
+                TSharedPtr<IImageWrapper> ImageWrapper = ImageWrapperModule.CreateImageWrapper(EImageFormat::PNG);
+                if (!ImageWrapper.IsValid() || !ImageWrapper->SetRaw(&MutablePixels[0], Lenght, Size_X, Size_Y, ERGBFormat::RGBA, 8))
+                {
+                    RHIUnlockTexture2D(CopiedTextureResource, 0, false, true);
+
+                    AsyncTask(ENamedThreads::GameThread, [DelegateBytes, BytesObject]()
+                        {
+                            DelegateBytes.ExecuteIfBound(false, "Export Texture Render Target 2D as Bytes -> Without Extension = false -> Error.", BytesObject);
+                        }
+                    );
+
+                    return;
+                }
+
+                BytesObject.ByteArray = ImageWrapper->GetCompressed(100);
+
+                RHIUnlockTexture2D(CopiedTextureResource, 0, false, true);
+
+                AsyncTask(ENamedThreads::GameThread, [DelegateBytes, BytesObject]()
+                    {
+                        DelegateBytes.ExecuteIfBound(true, "Export Texture Render Target 2D as Bytes -> Without Extension = false (as PNG) -> Successful.", BytesObject);
+                    }
+                );
+
+                return;
+            }
+        }
+    );
+}
+
 bool UExtendedVarsBPLibrary::Import_T2D_Bytes(UTexture2D*& Out_Texture, TArray<uint8> In_Bytes, bool bUseSrgb)
 {
     if (In_Bytes.Num() == 0)
@@ -1590,6 +1654,8 @@ bool UExtendedVarsBPLibrary::Import_T2D_Bytes_LowLevel(UTexture2D*& Out_Texture,
 
     return true;
 }
+
+// Logs.
 
 void UExtendedVarsBPLibrary::LogString(int32 InLogLevel, FString Log)
 {
