@@ -19,6 +19,7 @@
 #include "ImageUtils.h"                         // Save Texture as Jpeg
 #include "IImageWrapper.h"
 #include "IImageWrapperModule.h"
+#include "ImageCore.h"
 #include "Kismet/KismetRenderingLibrary.h"	    // Texture2D
 #include "MediaTexture.h"
 

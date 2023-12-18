@@ -38,12 +38,12 @@ public class ExtendedVars : ModuleRules
 				"Engine",
 				"Slate",
 				"SlateCore",
+                "UMG",
                 "RHI",				// UMediaTexture : FRHICommandListImmediate
 				"RenderCore",		// UMediaTexture : GetImmediateCommandList_ForRenderCommand()
-				"UMG",
+				"MediaAssets",
                 "ImageWrapper",
-                "MediaAssets"
-				// ... add private dependencies that you statically link with here ...	
+                "ImageCore",
 			}
 			);
 		

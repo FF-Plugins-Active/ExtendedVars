@@ -90,3 +90,13 @@ enum class EByteConverters : uint8
 	UTF8_Native		UMETA(DisplayName = "UTF8 (Native Method)"),
 };
 ENUM_CLASS_FLAGS(EByteConverters)
+
+UENUM(BlueprintType)
+enum class EImageExtensions : uint8
+{
+	Ext_None		UMETA(DisplayName = "None"),
+	Ext_BMP			UMETA(DisplayName = "BMP"),
+	EXT_JPEG		UMETA(DisplayName = "JPG"),
+	EXT_PNG			UMETA(DisplayName = "PNG"),
+};
+ENUM_CLASS_FLAGS(EImageExtensions)
