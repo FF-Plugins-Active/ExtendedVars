@@ -16,7 +16,7 @@ bool UExtendedVarsBPLibrary::Encode_Api_Old(TArray<uint8>& Encoded_Data, FString
 {
     bool bUseRgba = false;
     FString CompressedFormatString = "";
-    TSharedPtr<IImageWrapper> ImageWrapper;
+    EImageFormat ImageFormat = EImageFormat::Invalid;
 
     switch (CompressFormat)
     {
@@ -29,30 +29,36 @@ bool UExtendedVarsBPLibrary::Encode_Api_Old(TArray<uint8>& Encoded_Data, FString
 
         bUseRgba = false;
         CompressedFormatString = "BMP";
-        ImageWrapper = ImageWrapperModule.CreateImageWrapper(EImageFormat::BMP);
+        ImageFormat = EImageFormat::BMP;
+        
         break;
 
     case EImageExtensions::EXT_JPEG:
 
         bUseRgba = true;
         CompressedFormatString = "JPG";
-        ImageWrapper = ImageWrapperModule.CreateImageWrapper(EImageFormat::JPEG);
+        ImageFormat = EImageFormat::JPEG;
+        
         break;
 
     case EImageExtensions::EXT_PNG:
 
         bUseRgba = true;
         CompressedFormatString = "PNG";
-        ImageWrapper = ImageWrapperModule.CreateImageWrapper(EImageFormat::PNG);
+        ImageFormat = EImageFormat::PNG;
+
         break;
 
     default:
 
         bUseRgba = true;
         CompressedFormatString = "PNG";
-        ImageWrapper = ImageWrapperModule.CreateImageWrapper(EImageFormat::PNG);
+        ImageFormat = EImageFormat::PNG;
+
         break;
     }
+
+    TSharedPtr<IImageWrapper> ImageWrapper = ImageWrapperModule.CreateImageWrapper(ImageFormat);
 
     if (!ImageWrapper.IsValid())
     {
