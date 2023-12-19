@@ -1617,10 +1617,10 @@ void UExtendedVarsBPLibrary::Export_Texture_Bytes_Render_Thread(FDelegateImageBu
 
             uint32 DestStride = 0;
             void* Texture_Data = RHILockTexture2D(CopiedTextureResource, 0, RLM_ReadOnly, DestStride, false);
+            RHIUnlockTexture2D(CopiedTextureResource, 0, false, true);
 
             if (!Texture_Data)
             {
-                RHIUnlockTexture2D(CopiedTextureResource, 0, false, true);
                 AsyncTask(ENamedThreads::GameThread, [DelegateImageBuffer]()
                     {
                         DelegateImageBuffer.ExecuteIfBound(false, "Texture buffer is not valid.", TArray<uint8>(), FVector2D());
@@ -1637,8 +1637,6 @@ void UExtendedVarsBPLibrary::Export_Texture_Bytes_Render_Thread(FDelegateImageBu
             {
                 CompressedData.SetNum(Lenght);
                 FMemory::Memcpy(CompressedData.GetData(), (uint8*)Texture_Data, Lenght);
-
-                RHIUnlockTexture2D(CopiedTextureResource, 0, false, true);
 
                 AsyncTask(ENamedThreads::GameThread, [DelegateImageBuffer, CompressedData, Size_X, Size_Y]()
                     {
@@ -1666,8 +1664,6 @@ void UExtendedVarsBPLibrary::Export_Texture_Bytes_Render_Thread(FDelegateImageBu
                 {
                     EncodeResult = UExtendedVarsBPLibrary::Encode_Api_New(CompressedData, Out_Code, Texture_Data, ImageWrapperModule, Extension, Size_X, Size_Y, Lenght, GammaSpace);
                 }
-
-                RHIUnlockTexture2D(CopiedTextureResource, 0, false, true);
 
                 AsyncTask(ENamedThreads::GameThread, [DelegateImageBuffer, CompressedData, EncodeResult, Out_Code, Size_X, Size_Y]()
                     {
