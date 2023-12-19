@@ -14,7 +14,7 @@
 
 // Select folder from dialog (each content).
 USTRUCT(BlueprintType)
-struct EXTENDEDVARS_API FFolderContent
+struct EXTENDEDVARS_API FFolderContents
 {
 	GENERATED_BODY()
 
@@ -28,30 +28,6 @@ public:
 
 	UPROPERTY(BlueprintReadOnly)
 	bool bIsFile = false;
-};
-
-// Select folder from dialog (array container).
-USTRUCT(BlueprintType)
-struct EXTENDEDVARS_API FFolderContentArray
-{
-	GENERATED_BODY()
-
-public:
-
-	UPROPERTY(BlueprintReadOnly)
-	TArray<FFolderContent> OutContents;
-};
-
-USTRUCT(BlueprintType)
-struct EXTENDEDVARS_API FBytesObject_32
-{
-	GENERATED_BODY()
-
-public:
-
-	UPROPERTY(BlueprintReadWrite)
-	TArray<uint8> ByteArray;
-
 };
 
 UCLASS(BlueprintType)
@@ -85,21 +61,27 @@ public:
 };
 
 UDELEGATE(BlueprintAuthorityOnly)
-DECLARE_DYNAMIC_DELEGATE_ThreeParams(FDelegateSearch, bool, bIsSearchSuccessful, FString, ErrorCode, FFolderContentArray, Out);
+DECLARE_DYNAMIC_DELEGATE_ThreeParams(FDelegateFolderContents, bool, bIsSuccessfull, FString, ErrorCode, const TArray<FFolderContents>&, Out_Contents);
 
 UDELEGATE(BlueprintAuthorityOnly)
-DECLARE_DYNAMIC_DELEGATE_ThreeParams(FDelegateBytes_32, bool, bIsSearchSuccessful, FString, ErrorCode, FBytesObject_32, Out);
+DECLARE_DYNAMIC_DELEGATE_ThreeParams(FDelegateBytes_32, bool, bIsSuccessfull, FString, ErrorCode, const TArray<uint8>&, Out_Bytes);
 
 UDELEGATE(BlueprintAuthorityOnly)
-DECLARE_DYNAMIC_DELEGATE_ThreeParams(FDelegate_T2D, bool, bIsSearchSuccessful, FString, ErrorCode, UTexture2D*, Out);
+DECLARE_DYNAMIC_DELEGATE_FourParams(FDelegateImageBuffer, bool, bIsSuccessfull, FString, ErrorCode, const TArray<uint8>&, Out_Bytes, FVector2D, Out_Size);
 
 UDELEGATE(BlueprintAuthorityOnly)
-DECLARE_DYNAMIC_DELEGATE_ThreeParams(FDelegate_TRT2D, bool, bIsSearchSuccessful, FString, ErrorCode, UTextureRenderTarget2D*, Out);
+DECLARE_DYNAMIC_DELEGATE_ThreeParams(FDelegateTexture2D, bool, bIsSuccessfull, FString, ErrorCode, UTexture2D*, Out);
 
 UCLASS()
 class UExtendedVarsBPLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_UCLASS_BODY()
+
+	// Render Callbacks
+
+	static EXTENDEDVARS_API bool Encode_Api_Old(TArray<uint8>& Encoded_Data, FString& Out_Code, void* Texture_Data, IImageWrapperModule& ImageWrapperModule, EImageExtensions CompressFormat, int32 Size_X, int32 Size_Y, size_t Lenght);
+
+	static EXTENDEDVARS_API bool Encode_Api_New(TArray<uint8>& Encoded_Data, FString& Out_Code, void* Texture_Data, IImageWrapperModule& ImageWrapperModule, EImageExtensions CompressFormat, int32 Size_X, int32 Size_Y, size_t Lenght, EGammaSpace GammaSpace);
 
 	// Fonts Group.
 
@@ -132,10 +114,10 @@ class UExtendedVarsBPLibrary : public UBlueprintFunctionLibrary
 	static EXTENDEDVARS_API FString Android_Path_Helper(FString In_FileName);
 
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Get Folder Contents", ToolTip = "Description.", Keywords = "explorer, load, file, folder, content"), Category = "Frozen Forest|Extended Variables|Read")
-	static EXTENDEDVARS_API bool Get_Folder_Contents(TArray<FFolderContent>& OutContents, FString& ErrorCode, FString InPath);
+	static EXTENDEDVARS_API bool Get_Folder_Contents(TArray<FFolderContents>& OutContents, FString& ErrorCode, FString InPath);
 
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Search In Folder", ToolTip = "Description.", Keywords = "explorer, load, file, folder, content"), Category = "Frozen Forest|Extended Variables|Read")
-	static EXTENDEDVARS_API void Search_In_Folder(FDelegateSearch DelegateSearch, FString InPath, FString InSearch, bool bSearchExact);
+	static EXTENDEDVARS_API void Search_In_Folder(FDelegateFolderContents DelegateFolderContents, FString InPath, FString InSearch, bool bSearchExact);
 
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Read File from Path (64 Bit)", ToolTip = "You need to use absolute path.", Keywords = "read, load, path, bytes, import, file"), Category = "Frozen Forest|Extended Variables|Read")
 	static EXTENDEDVARS_API bool Read_File_From_Path_64(UBytesObject_64*& Out_Bytes_Object, FString In_Path, bool bUseLowLevel = false);
@@ -149,7 +131,7 @@ class UExtendedVarsBPLibrary : public UBlueprintFunctionLibrary
 	// Write Group.
 
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Write File To Path", ToolTip = "You need to use absolute path.", Keywords = "write, path, bytes, export"), Category = "Frozen Forest|Extended Variables|Write")
-	static EXTENDEDVARS_API bool Write_File_To_Path(FBytesObject_32 In_Bytes, FString In_Path);
+	static EXTENDEDVARS_API bool Write_File_To_Path(TArray<uint8> In_Bytes, FString In_Path);
 
 	// Bytes Group | Convert To.
 
@@ -193,6 +175,9 @@ class UExtendedVarsBPLibrary : public UBlueprintFunctionLibrary
 
 	UFUNCTION(BlueprintPure, meta = (DisplayName = "Base64 To Bytes x86", Keywords = "bytes, string, fstring, convert, to, base64"), Category = "Frozen Forest|Extended Variables|Bytes")
 	static EXTENDEDVARS_API TArray<uint8> Base64_To_Bytes_x86(FString In_Base, bool bUseUrl);
+
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Detect Image Extension", Keywords = "detect, image, extension, bytes, buffer"), Category = "Frozen Forest|Extended Variables|Bytes")
+	static EXTENDEDVARS_API EImageExtensions DetectImageExtension(TArray<uint8> In_Bytes);
 
 	// String Group.
 
@@ -262,7 +247,7 @@ class UExtendedVarsBPLibrary : public UBlueprintFunctionLibrary
 	static EXTENDEDVARS_API UTextureRenderTarget2D* Widget_To_TRT2D(FString& OutCode, UUserWidget* InWidget, FVector2D InDrawSize);
 
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Texture Render Target 2D to UTexture2D", Keywords = "texture, render, target, widget, convert"), Category = "Frozen Forest|Extended Variables|Render")
-	static EXTENDEDVARS_API void TRT2D_To_T2D(FDelegate_T2D Delegate_T2D, UTextureRenderTarget2D* In_TRT_2D);
+	static EXTENDEDVARS_API void TRT2D_To_T2D(FDelegateTexture2D Delegate_T2D, UTextureRenderTarget2D* In_TRT_2D);
 
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Export Texture2D As Bitmap", ToolTip = "If \"In_Path\" is not defined, it will export it to \Project's saved directory/Temp\".", Keywords = "t2d, texture, texture2d, utexture2d, export, bitmap, bmp"), Category = "Frozen Forest|Extended Variables|Render")
 	static EXTENDEDVARS_API bool Export_T2D_File(FString& Out_Path, UTexture2D* Texture, FString In_Path, EImageExtensions Extension = EImageExtensions::Ext_BMP);
@@ -273,8 +258,11 @@ class UExtendedVarsBPLibrary : public UBlueprintFunctionLibrary
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Export Texture2D As Bytes", Keywords = "t2d, texture, texture2d, utexture2d, get, export, byte, bytes, array"), Category = "Frozen Forest|Extended Variables|Render")
 	static EXTENDEDVARS_API bool Export_T2D_Bytes(TArray<uint8>& Out_Array, FString& Out_Code, UTexture2D* Texture);
 
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Export Texture with Render Thread", ToolTip = "If \"In_Path\" is defined, it will also export target texture as file.", Keywords = "t2d, trt2d, texture, texture2d, utexture2d, render, target, media, get, export, byte, bytes, array, render, thread"), Category = "Frozen Forest|Extended Variables|Render")
-	static EXTENDEDVARS_API void Export_Texture_Bytes_Render_Thread(FDelegateBytes_32 DelegateBytes, UTexture* TargetTexture, bool bUseOldApi, EImageExtensions Extension = EImageExtensions::Ext_None);
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Export Texture with Render Thread", ToolTip = "In extension is none, function won't use \"ImageWrapperModule\". So, API doesn't matter.", Keywords = "t2d, trt2d, texture, texture2d, utexture2d, render, target, media, get, export, byte, bytes, array, render, thread"), Category = "Frozen Forest|Extended Variables|Render")
+	static EXTENDEDVARS_API void Export_Texture_Bytes_Render_Thread(FDelegateImageBuffer DelegateImageBuffer, UTexture* TargetTexture, bool bUseOldApi, EImageExtensions Extension = EImageExtensions::Ext_None);
+
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Decompress Image", ToolTip = "", Keywords = "image, texture, render, decompress"), Category = "Frozen Forest|Extended Variables|Render")
+	static EXTENDEDVARS_API void DecompressImage(FDelegateImageBuffer DelegateImageBuffer, TArray<uint8> In_Bytes);
 
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Import Texture2D From Bytes (Game Thread Image Utils)", Keywords = "t2d, texture, texture2d, utexture2d, import, create, bytes"), Category = "Frozen Forest|Extended Variables|Render")
 	static EXTENDEDVARS_API bool Import_T2D_Bytes(UTexture2D*& Out_Texture, TArray<uint8> In_Bytes, bool bUseSrgb);

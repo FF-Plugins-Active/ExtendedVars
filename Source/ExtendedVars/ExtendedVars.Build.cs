@@ -43,7 +43,6 @@ public class ExtendedVars : ModuleRules
 				"RenderCore",		// UMediaTexture : GetImmediateCommandList_ForRenderCommand()
 				"MediaAssets",
                 "ImageWrapper",
-                "ImageCore",
 			}
 			);
 		
