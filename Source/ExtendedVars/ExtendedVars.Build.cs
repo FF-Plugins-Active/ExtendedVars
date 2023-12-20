@@ -26,6 +26,8 @@ public class ExtendedVars : ModuleRules
 			new string[]
 			{
 				"Core",
+                "RHI",				// FRHICommandListImmediate and Enqueue Rendering Commands
+				"RenderCore",		// FRHICommandListImmediate and Enqueue Rendering Commands
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
@@ -39,8 +41,6 @@ public class ExtendedVars : ModuleRules
 				"Slate",
 				"SlateCore",
                 "UMG",
-                "RHI",				// UMediaTexture : FRHICommandListImmediate
-				"RenderCore",		// UMediaTexture : GetImmediateCommandList_ForRenderCommand()
 				"MediaAssets",
                 "ImageWrapper",
 			}
