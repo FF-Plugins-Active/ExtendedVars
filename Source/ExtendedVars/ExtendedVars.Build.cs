@@ -13,14 +13,12 @@ public class ExtendedVars : ModuleRules
 				// ... add public include paths required here ...
 			}
 			);
-				
-		
+					
 		PrivateIncludePaths.AddRange(
 			new string[] {
 				// ... add other private include paths required here ...
 			}
-			);
-			
+			);	
 		
 		PublicDependencyModuleNames.AddRange(
 			new string[]
@@ -28,11 +26,9 @@ public class ExtendedVars : ModuleRules
 				"Core",
                 "RHI",				// FRHICommandListImmediate and Enqueue Rendering Commands
 				"RenderCore",		// FRHICommandListImmediate and Enqueue Rendering Commands
-				// ... add other public dependencies that you statically link with here ...
 			}
 			);
 			
-		
 		PrivateDependencyModuleNames.AddRange(
 			new string[]
 			{
@@ -45,7 +41,6 @@ public class ExtendedVars : ModuleRules
                 "ImageWrapper",
 			}
 			);
-		
 		
 		DynamicallyLoadedModuleNames.AddRange(
 			new string[]
