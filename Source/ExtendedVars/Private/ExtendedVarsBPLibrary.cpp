@@ -12,8 +12,10 @@ UExtendedVarsBPLibrary::UExtendedVarsBPLibrary(const FObjectInitializer& ObjectI
 
 }
 
-bool UExtendedVarsBPLibrary::Encode_Api_Old(TArray<uint8>& Encoded_Data, FString& Out_Code, void* Texture_Data, IImageWrapperModule& ImageWrapperModule, EImageExtensions CompressFormat, int32 Size_X, int32 Size_Y, size_t Lenght)
+bool UExtendedVarsBPLibrary::Encode_Api_Old(TArray<uint8>& Encoded_Data, FString& Out_Code, void* Texture_Data, EImageExtensions CompressFormat, int32 Size_X, int32 Size_Y, size_t Lenght)
 {
+    IImageWrapperModule& ImageWrapperModule = FModuleManager::LoadModuleChecked<IImageWrapperModule>(FName("ImageWrapper"));
+
     bool bUseRgba = false;
     FString CompressedFormatString = "";
     EImageFormat ImageFormat = EImageFormat::Invalid;
@@ -103,8 +105,10 @@ bool UExtendedVarsBPLibrary::Encode_Api_Old(TArray<uint8>& Encoded_Data, FString
     return true;
 }
 
-bool UExtendedVarsBPLibrary::Encode_Api_New(TArray<uint8>& Encoded_Data, FString& Out_Code, void* Texture_Data, IImageWrapperModule& ImageWrapperModule, EImageExtensions CompressFormat, int32 Size_X, int32 Size_Y, size_t Lenght, EGammaSpace GammaSpace)
+bool UExtendedVarsBPLibrary::Encode_Api_New(TArray<uint8>& Encoded_Data, FString& Out_Code, void* Texture_Data, EImageExtensions CompressFormat, int32 Size_X, int32 Size_Y, size_t Lenght, EGammaSpace GammaSpace)
 {
+    IImageWrapperModule& ImageWrapperModule = FModuleManager::LoadModuleChecked<IImageWrapperModule>(FName("ImageWrapper"));
+
     FImageView ImageView;
     ImageView.Format = ERawImageFormat::BGRA8;
     ImageView.SizeX = Size_X;
@@ -1480,13 +1484,6 @@ bool UExtendedVarsBPLibrary::Export_T2D_Bytes(TArray<uint8>& Out_Array, FString&
 
     TextureCompressionSettings OldCompressionSettings = Texture->CompressionSettings;
     Texture->CompressionSettings = TextureCompressionSettings::TC_VectorDisplacementmap;
-
-#ifdef WITH_EDITOR
-
-    TextureMipGenSettings OldMipGenSettings = Texture->MipGenSettings;
-    Texture->MipGenSettings = TextureMipGenSettings::TMGS_NoMipmaps;
-
-#endif
     Texture->UpdateResource();
 
     int32 Texture_Width = Texture->GetSizeX();
@@ -1510,10 +1507,6 @@ bool UExtendedVarsBPLibrary::Export_T2D_Bytes(TArray<uint8>& Out_Array, FString&
     Texture_Mip.BulkData.Unlock();
 
     Texture->CompressionSettings = OldCompressionSettings;
-
-#ifdef WITH_EDITOR
-    Texture->MipGenSettings = OldMipGenSettings;
-#endif
 
     Texture->UpdateResource();
 
@@ -1647,9 +1640,6 @@ void UExtendedVarsBPLibrary::Export_Texture_Bytes_Render_Thread(FDelegateImageBu
                 return;
             }
 
-            // Create Image Wrapper Module for Encoding.
-            IImageWrapperModule& ImageWrapperModule = FModuleManager::LoadModuleChecked<IImageWrapperModule>(FName("ImageWrapper"));
-
             FString Out_Code = "";
             bool EncodeResult = false;
 
@@ -1657,12 +1647,12 @@ void UExtendedVarsBPLibrary::Export_Texture_Bytes_Render_Thread(FDelegateImageBu
             {
                 if (bUseOldApi)
                 {
-                    EncodeResult = UExtendedVarsBPLibrary::Encode_Api_Old(CompressedData, Out_Code, Texture_Data, ImageWrapperModule, Extension, Size_X, Size_Y, Lenght);
+                    EncodeResult = UExtendedVarsBPLibrary::Encode_Api_Old(CompressedData, Out_Code, Texture_Data, Extension, Size_X, Size_Y, Lenght);
                 }
 
                 else
                 {
-                    EncodeResult = UExtendedVarsBPLibrary::Encode_Api_New(CompressedData, Out_Code, Texture_Data, ImageWrapperModule, Extension, Size_X, Size_Y, Lenght, GammaSpace);
+                    EncodeResult = UExtendedVarsBPLibrary::Encode_Api_New(CompressedData, Out_Code, Texture_Data, Extension, Size_X, Size_Y, Lenght, GammaSpace);
                 }
 
                 AsyncTask(ENamedThreads::GameThread, [DelegateImageBuffer, CompressedData, EncodeResult, Out_Code, Size_X, Size_Y]()

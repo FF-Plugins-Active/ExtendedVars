@@ -79,9 +79,9 @@ class UExtendedVarsBPLibrary : public UBlueprintFunctionLibrary
 
 	// Render Callbacks
 
-	static EXTENDEDVARS_API bool Encode_Api_Old(TArray<uint8>& Encoded_Data, FString& Out_Code, void* Texture_Data, IImageWrapperModule& ImageWrapperModule, EImageExtensions CompressFormat, int32 Size_X, int32 Size_Y, size_t Lenght);
+	static EXTENDEDVARS_API bool Encode_Api_Old(TArray<uint8>& Encoded_Data, FString& Out_Code, void* Texture_Data, EImageExtensions CompressFormat, int32 Size_X, int32 Size_Y, size_t Lenght);
 
-	static EXTENDEDVARS_API bool Encode_Api_New(TArray<uint8>& Encoded_Data, FString& Out_Code, void* Texture_Data, IImageWrapperModule& ImageWrapperModule, EImageExtensions CompressFormat, int32 Size_X, int32 Size_Y, size_t Lenght, EGammaSpace GammaSpace);
+	static EXTENDEDVARS_API bool Encode_Api_New(TArray<uint8>& Encoded_Data, FString& Out_Code, void* Texture_Data, EImageExtensions CompressFormat, int32 Size_X, int32 Size_Y, size_t Lenght, EGammaSpace GammaSpace);
 
 	// Fonts Group.
 
