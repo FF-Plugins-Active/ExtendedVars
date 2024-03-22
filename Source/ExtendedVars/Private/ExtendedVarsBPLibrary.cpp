@@ -86,7 +86,7 @@ bool UExtendedVarsBPLibrary::Encode_Api_Old(TArray<uint8>& Encoded_Data, FString
         }
     }
 
-    if (!ImageWrapper->SetRaw(bUseRgba ? &Array_Colors_RGBA[0] : Texture_Data, Lenght, Size_X, Size_Y, bUseRgba ? ERGBFormat::RGBA : ERGBFormat::BGRA, 8))
+    if (!ImageWrapper->SetRaw(bUseRgba ? Array_Colors_RGBA.GetData() : Texture_Data, Lenght, Size_X, Size_Y, bUseRgba ? ERGBFormat::RGBA : ERGBFormat::BGRA, 8))
     {
         Out_Code = CompressedFormatString + " compression is NOT successfull for target texture with old api. \"ImageWrapperModule->SetRaw\" failed.";
         return false;
