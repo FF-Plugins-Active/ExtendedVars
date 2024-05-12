@@ -53,7 +53,14 @@ class EXTENDEDVARS_API URuntimeFont : public UObject
 
 public:
 
-	UPROPERTY(BlueprintReadWrite)
+	// ~URuntimeFont start.
+	void BeginDestroy();
+	// ~URuntimeFont finish.
+
+	UPROPERTY(BlueprintReadOnly)
+	FString FontName;
+
+	UPROPERTY(BlueprintReadOnly)
 	UFont* Font;
 
 	UFontFace* Font_Face;
@@ -86,10 +93,7 @@ class UExtendedVarsBPLibrary : public UBlueprintFunctionLibrary
 	// Fonts Group.
 
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Runtime Font Load", ToolTip = "", Keywords = "runtime, font, load"), Category = "Frozen Forest|Extended Variables|Font")
-	static EXTENDEDVARS_API URuntimeFont* Runtime_Font_Load(TArray<uint8> In_Bytes);
-
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Runtime Font Release", ToolTip = "", Keywords = "runtime, font, release"), Category = "Frozen Forest|Extended Variables|Font")
-	static EXTENDEDVARS_API bool Runtime_Font_Release(UPARAM(ref)URuntimeFont*& In_RuntimeFont);
+	static EXTENDEDVARS_API URuntimeFont* Runtime_Font_Load(TArray<uint8> In_Bytes, FString FontName = "RuntimeFont");
 
 	// Sorters.
 

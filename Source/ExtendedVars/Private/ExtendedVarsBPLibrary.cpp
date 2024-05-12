@@ -174,7 +174,7 @@ bool UExtendedVarsBPLibrary::Encode_Api_New(TArray<uint8>& Encoded_Data, FString
 
 // Fonts Group.
 
-URuntimeFont* UExtendedVarsBPLibrary::Runtime_Font_Load(TArray<uint8> In_Bytes)
+URuntimeFont* UExtendedVarsBPLibrary::Runtime_Font_Load(TArray<uint8> In_Bytes, FString FontName)
 {
     UFontFace* FontFace = NewObject<UFontFace>();
     FontFace->LoadingPolicy = EFontLoadingPolicy::Inline;
@@ -190,26 +190,46 @@ URuntimeFont* UExtendedVarsBPLibrary::Runtime_Font_Load(TArray<uint8> In_Bytes)
     URuntimeFont* RuntimeFont = NewObject<URuntimeFont>();
     RuntimeFont->Font_Face = FontFace;
     RuntimeFont->Font = Font;
+    RuntimeFont->FontName = FontName;
 
     return RuntimeFont;
 }
 
-bool UExtendedVarsBPLibrary::Runtime_Font_Release(UPARAM(ref)URuntimeFont*& In_RuntimeFont)
+void URuntimeFont::BeginDestroy()
 {
-    if (IsValid(In_RuntimeFont) == false)
+    if (IsValid(this->Font_Face))
     {
-        return false;
+        this->Font_Face->RemoveFromRoot();
+        bool bIsFontFaceDestroyed = this->Font_Face->ConditionalBeginDestroy();
+
+        if (bIsFontFaceDestroyed)
+        {
+            UE_LOG(LogTemp, Display, TEXT("FontFace destroyed : %s"), *this->FontName);
+        }
+
+        else
+        {
+            UE_LOG(LogTemp, Warning, TEXT("FontFace couldn't destroyed"));
+        }
     }
 
-    In_RuntimeFont->Font_Face->RemoveFromRoot();
-    In_RuntimeFont->Font_Face->ConditionalBeginDestroy();
+    if (IsValid(this->Font))
+    {
+        this->Font->RemoveFromRoot();
+        bool bIsFontDestroyed = this->Font->ConditionalBeginDestroy();
 
-    In_RuntimeFont->Font->RemoveFromRoot();
-    In_RuntimeFont->Font->ConditionalBeginDestroy();
+        if (bIsFontDestroyed)
+        {
+            UE_LOG(LogTemp, Display, TEXT("Font destroyed : %s"), *this->FontName);
+        }
 
-    In_RuntimeFont = nullptr;
+        else
+        {
+            UE_LOG(LogTemp, Warning, TEXT("Font couldn't destroyed"));
+        }
+    }
 
-    return true;
+    Super::BeginDestroy();
 }
 
 // Sorters.
