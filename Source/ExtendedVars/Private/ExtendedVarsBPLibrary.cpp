@@ -1454,32 +1454,41 @@ bool UExtendedVarsBPLibrary::Export_T2D_Colors(TArray<FColor>& Out_Array, UTextu
         return false;
     }
 
-    if (Texture->GetPixelFormat() == EPixelFormat::PF_B8G8R8A8 && Texture->CompressionSettings.GetIntValue() == 5 || Texture->CompressionSettings.GetIntValue() == 7)
-    {
-        int32 Texture_Width = Texture->GetSizeX();
-        int32 Texture_Height = Texture->GetSizeY();
-        size_t Lenght = static_cast<size_t>(Texture_Width * Texture_Height * 4);
-
-        FTexture2DMipMap& Texture_Mip = Texture->GetPlatformData()->Mips[0];
-        void* Texture_Data = Texture_Mip.BulkData.Lock(LOCK_READ_WRITE);
-    
-        if (!Texture_Data)
-        {
-            return false;
-        }
-
-        Out_Array.SetNum(Texture_Width * Texture_Height);
-        FMemory::Memcpy(Out_Array.GetData(), static_cast<FColor*>(Texture_Data), Lenght);
-
-        Texture_Mip.BulkData.Unlock();
-
-        return true;
-    }
-
-    else
+    if (Texture->GetPixelFormat() != EPixelFormat::PF_B8G8R8A8)
     {
         return false;
     }
+
+    if (Texture->LODGroup != TextureGroup::TEXTUREGROUP_UI)
+    {
+        return false;
+    }
+
+    TextureCompressionSettings OldCompressionSettings = Texture->CompressionSettings;
+    Texture->CompressionSettings = TextureCompressionSettings::TC_VectorDisplacementmap;
+    Texture->UpdateResource();
+
+    int32 Texture_Width = Texture->GetSizeX();
+    int32 Texture_Height = Texture->GetSizeY();
+    size_t Lenght = static_cast<size_t>(Texture_Width * Texture_Height * 4);
+
+    FTexture2DMipMap& Texture_Mip = Texture->GetPlatformData()->Mips[0];
+    void* Texture_Data = Texture_Mip.BulkData.Lock(LOCK_READ_WRITE);
+
+    if (!Texture_Data)
+    {
+        return false;
+    }
+
+    Out_Array.SetNum(Texture_Width * Texture_Height);
+    FMemory::Memcpy(Out_Array.GetData(), static_cast<FColor*>(Texture_Data), Lenght);
+
+    Texture_Mip.BulkData.Unlock();
+
+    Texture->CompressionSettings = OldCompressionSettings;
+    Texture->UpdateResource();
+
+    return true;
 }
 
 bool UExtendedVarsBPLibrary::Export_T2D_Bytes(TArray<uint8>& Out_Array, FString& Out_Code, UTexture2D* Texture)
@@ -1495,7 +1504,7 @@ bool UExtendedVarsBPLibrary::Export_T2D_Bytes(TArray<uint8>& Out_Array, FString&
         Out_Code = "Texture pixel format should be PF_B8G8R8A8.";
         return false;
     }
-
+    
     if (Texture->LODGroup != TextureGroup::TEXTUREGROUP_UI)
     {
         Out_Code = "Texture LOD group should be UI.";
@@ -1527,7 +1536,6 @@ bool UExtendedVarsBPLibrary::Export_T2D_Bytes(TArray<uint8>& Out_Array, FString&
     Texture_Mip.BulkData.Unlock();
 
     Texture->CompressionSettings = OldCompressionSettings;
-
     Texture->UpdateResource();
 
     return true;

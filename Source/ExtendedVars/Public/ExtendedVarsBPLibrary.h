@@ -256,10 +256,10 @@ class UExtendedVarsBPLibrary : public UBlueprintFunctionLibrary
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Export Texture2D As Bitmap", ToolTip = "If \"In_Path\" is not defined, it will export it to \Project's saved directory/Temp\".", Keywords = "t2d, texture, texture2d, utexture2d, export, bitmap, bmp"), Category = "Frozen Forest|Extended Variables|Render")
 	static EXTENDEDVARS_API bool Export_T2D_File(FString& Out_Path, UTexture2D* Texture, FString In_Path, EImageExtensions Extension = EImageExtensions::Ext_BMP);
 
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Export Texture2D As Colors", Keywords = "t2d, texture, texture2d, utexture2d, get, export, color, fcolor, array"), Category = "Frozen Forest|Extended Variables|Render")
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Export Texture2D As Colors", Keywords = "t2d, texture, texture2d, utexture2d, get, export, color, fcolor, array"), Category = "Frozen Forest|Extended Variables|Render")
 	static EXTENDEDVARS_API bool Export_T2D_Colors(TArray<FColor>& Out_Array, UTexture2D* Texture);
 
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Export Texture2D As Bytes", Keywords = "t2d, texture, texture2d, utexture2d, get, export, byte, bytes, array"), Category = "Frozen Forest|Extended Variables|Render")
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Export Texture2D As Bytes", Keywords = "t2d, texture, texture2d, utexture2d, get, export, byte, bytes, array"), Category = "Frozen Forest|Extended Variables|Render")
 	static EXTENDEDVARS_API bool Export_T2D_Bytes(TArray<uint8>& Out_Array, FString& Out_Code, UTexture2D* Texture);
 
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Export Texture with Render Thread", ToolTip = "In extension is none, function won't use \"ImageWrapperModule\". So, API doesn't matter.", Keywords = "t2d, trt2d, texture, texture2d, utexture2d, render, target, media, get, export, byte, bytes, array, render, thread"), Category = "Frozen Forest|Extended Variables|Render")
