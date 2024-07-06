@@ -988,9 +988,22 @@ TArray<uint8> UExtendedVarsBPLibrary::Base64_To_Bytes_x86(FString In_Base64, boo
 
 // String Group.
 
-FString UExtendedVarsBPLibrary::FDateTime_To_String(FDateTime In_Time)
+FString UExtendedVarsBPLibrary::FDateTime_To_String(FDateTime In_Time, FString CustomFormat, bool bUseIso8601)
 {
-    return In_Time.ToString();
+    if (!CustomFormat.IsEmpty())
+    {
+        return In_Time.ToFormattedString(*CustomFormat);
+    }
+
+    if (bUseIso8601)
+    {
+        return In_Time.ToIso8601();
+    }
+    
+    else
+    {
+        return In_Time.ToString();
+    }
 }
 
 FString UExtendedVarsBPLibrary::Int64_To_String(int64 TargetInt64)

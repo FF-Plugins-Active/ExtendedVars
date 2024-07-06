@@ -186,7 +186,7 @@ class UExtendedVarsBPLibrary : public UBlueprintFunctionLibrary
 	// String Group.
 
 	UFUNCTION(BlueprintPure, meta = (DisplayName = "FDateTime To String", ToolTip = "Description.", Keywords = "string, fstring, parse, date, time, convert, to"), Category = "Frozen Forest|Extended Variables|String")
-	static EXTENDEDVARS_API FString FDateTime_To_String(FDateTime In_Time);
+	static EXTENDEDVARS_API FString FDateTime_To_String(FDateTime In_Time, FString CustomFormat, bool bUseIso8601 = true);
 
 	UFUNCTION(BlueprintPure, meta = (DisplayName = "Int64 To String", Keywords = "string, fstring, convert, int64"), Category = "Frozen Forest|Extended Variables|String")
 	static EXTENDEDVARS_API FString Int64_To_String(int64 TargetInt64);
