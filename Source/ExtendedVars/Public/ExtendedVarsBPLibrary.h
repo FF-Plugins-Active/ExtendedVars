@@ -276,7 +276,10 @@ class UExtendedVarsBPLibrary : public UBlueprintFunctionLibrary
 
 	// Logs.
 
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Log String"), Category = "Frozen Forest|Extended Variables|Logs")
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Log String", Keywords = "log, display, string, result, return, code"), Category = "Frozen Forest|Extended Variables|Logs")
 	static void LogString(int32 InLogLevel, FString Log);
+
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Get Date With Timezone", Keywords = "get, date, time, zone, timezone, geo, geography, geographic, day, month, short, long"), Category = "Frozen Forest|Extended Variables|DateTime")
+	static FString GetDateTimeWithZone(FString& Out_Zone, FString& Out_Geo, FString& Out_Day, FString& Out_Month, bool bUseShort);
 
 };

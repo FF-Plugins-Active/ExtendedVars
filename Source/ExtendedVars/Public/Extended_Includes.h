@@ -32,4 +32,5 @@ THIRD_PARTY_INCLUDES_START
 #include <sstream>								// Bytes to Hex
 #include <iostream>								// Bytes to Hex
 #include <iomanip>								// Bytes to Hex
+#include <chrono>
 THIRD_PARTY_INCLUDES_END
