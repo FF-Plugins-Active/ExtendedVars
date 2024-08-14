@@ -280,6 +280,6 @@ class UExtendedVarsBPLibrary : public UBlueprintFunctionLibrary
 	static void LogString(int32 InLogLevel, FString Log);
 
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Get Date With Timezone", Keywords = "get, date, time, zone, timezone, geo, geography, geographic, day, month, short, long"), Category = "Frozen Forest|Extended Variables|DateTime")
-	static FString GetDateTimeWithZone(FString& Out_Zone, FString& Out_Geo, FString& Out_Day, FString& Out_Month, bool bUseShort);
+	static bool GetDateTimeWithZone(FString& Out_Print, FString& Out_Zone, FString& Out_Geo, FString& Out_Day, FString& Out_Month, bool bUseShort);
 
 };

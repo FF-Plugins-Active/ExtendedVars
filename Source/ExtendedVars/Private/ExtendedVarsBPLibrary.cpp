@@ -1816,76 +1816,76 @@ void UExtendedVarsBPLibrary::LogString(int32 InLogLevel, FString Log)
     }
 }
 
-FString UExtendedVarsBPLibrary::GetDateTimeWithZone(FString& Out_Zone, FString& Out_Geo, FString& Out_Day, FString& Out_Month, bool bUseShort)
+bool UExtendedVarsBPLibrary::GetDateTimeWithZone(FString& Out_Print, FString& Out_Zone, FString& Out_Geo, FString& Out_Day, FString& Out_Month, bool bUseShort)
 {
+#ifdef _WIN64
     FDateTime Now = FDateTime::UtcNow();
     EDayOfWeek DayOfWeek = Now.GetDayOfWeek();
     EMonthOfYear MonthOfYear = Now.GetMonthOfYear();
 
     switch (DayOfWeek)
-
     {
-    case EDayOfWeek::Monday:
-        Out_Day = bUseShort ? "Mon" : "Monday";
-        break;
-    case EDayOfWeek::Tuesday:
-        Out_Day = bUseShort ? "Tue" : "Tuesday";
-        break;
-    case EDayOfWeek::Wednesday:
-        Out_Day = bUseShort ? "Wed" : "Wednesday";
-        break;
-    case EDayOfWeek::Thursday:
-        Out_Day = bUseShort ? "Thu" : "Thursday";
-        break;
-    case EDayOfWeek::Friday:
-        Out_Day = bUseShort ? "Fri" : "Friday";
-        break;
-    case EDayOfWeek::Saturday:
-        Out_Day = bUseShort ? "Sat" : "Saturday";
-        break;
-    case EDayOfWeek::Sunday:
-        Out_Day = bUseShort ? "Sun" : "Sunday";
-        break;
+        case EDayOfWeek::Monday:
+            Out_Day = bUseShort ? "Mon" : "Monday";
+            break;
+        case EDayOfWeek::Tuesday:
+            Out_Day = bUseShort ? "Tue" : "Tuesday";
+            break;
+        case EDayOfWeek::Wednesday:
+            Out_Day = bUseShort ? "Wed" : "Wednesday";
+            break;
+        case EDayOfWeek::Thursday:
+            Out_Day = bUseShort ? "Thu" : "Thursday";
+            break;
+        case EDayOfWeek::Friday:
+            Out_Day = bUseShort ? "Fri" : "Friday";
+            break;
+        case EDayOfWeek::Saturday:
+            Out_Day = bUseShort ? "Sat" : "Saturday";
+            break;
+        case EDayOfWeek::Sunday:
+            Out_Day = bUseShort ? "Sun" : "Sunday";
+            break;
     }
 
     switch (MonthOfYear)
     {
-    case EMonthOfYear::January:
-        Out_Month = bUseShort ? "Jan" : "January";
-        break;
-    case EMonthOfYear::February:
-        Out_Month = bUseShort ? "Feb" : "February";
-        break;
-    case EMonthOfYear::March:
-        Out_Month = bUseShort ? "Mar" : "March";
-        break;
-    case EMonthOfYear::April:
-        Out_Month = bUseShort ? "Apr" : "April";
-        break;
-    case EMonthOfYear::May:
-        Out_Month = bUseShort ? "May" : "May";
-        break;
-    case EMonthOfYear::June:
-        Out_Month = bUseShort ? "Jun" : "June";
-        break;
-    case EMonthOfYear::July:
-        Out_Month = bUseShort ? "Jul" : "July";
-        break;
-    case EMonthOfYear::August:
-        Out_Month = bUseShort ? "Aug" : "August";
-        break;
-    case EMonthOfYear::September:
-        Out_Month = bUseShort ? "Sep" : "September";
-        break;
-    case EMonthOfYear::October:
-        Out_Month = bUseShort ? "Oct" : "October";
-        break;
-    case EMonthOfYear::November:
-        Out_Month = bUseShort ? "Nov" : "November";
-        break;
-    case EMonthOfYear::December:
-        Out_Month = bUseShort ? "Dec" : "December";
-        break;
+        case EMonthOfYear::January:
+            Out_Month = bUseShort ? "Jan" : "January";
+            break;
+        case EMonthOfYear::February:
+            Out_Month = bUseShort ? "Feb" : "February";
+            break;
+        case EMonthOfYear::March:
+            Out_Month = bUseShort ? "Mar" : "March";
+            break;
+        case EMonthOfYear::April:
+            Out_Month = bUseShort ? "Apr" : "April";
+            break;
+        case EMonthOfYear::May:
+            Out_Month = bUseShort ? "May" : "May";
+            break;
+        case EMonthOfYear::June:
+            Out_Month = bUseShort ? "Jun" : "June";
+            break;
+        case EMonthOfYear::July:
+            Out_Month = bUseShort ? "Jul" : "July";
+            break;
+        case EMonthOfYear::August:
+            Out_Month = bUseShort ? "Aug" : "August";
+            break;
+        case EMonthOfYear::September:
+            Out_Month = bUseShort ? "Sep" : "September";
+            break;
+        case EMonthOfYear::October:
+            Out_Month = bUseShort ? "Oct" : "October";
+            break;
+        case EMonthOfYear::November:
+            Out_Month = bUseShort ? "Nov" : "November";
+            break;
+        case EMonthOfYear::December:
+            Out_Month = bUseShort ? "Dec" : "December";
+            break;
     }
 
     std::stringstream TimeStream;
@@ -1905,5 +1905,11 @@ FString UExtendedVarsBPLibrary::GetDateTimeWithZone(FString& Out_Zone, FString& 
     ZoneStream << std::chrono::current_zone()->name();
     Out_Geo = ZoneStream.str().c_str();
 
-    return FString::Printf(TEXT("%s, %d %s %d %d:%d:%d %s %s"), *Out_Day, Now.GetDay(), *Out_Month, Now.GetYear(), Now.GetHour(), Now.GetMinute(), Now.GetSecond(), *Out_Zone, *Out_Geo);
+    Out_Print = FString::Printf(TEXT("%s, %d %s %d %d:%d:%d %s %s"), *Out_Day, Now.GetDay(), *Out_Month, Now.GetYear(), Now.GetHour(), Now.GetMinute(), Now.GetSecond(), *Out_Zone, *Out_Geo);
+
+    return true;
+
+#else
+    return false;
+#endif
 }
