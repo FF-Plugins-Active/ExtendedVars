@@ -462,6 +462,8 @@ bool UExtendedVarsBPLibrary::Read_File_From_Path_64(UBytesObject_64*& Out_Bytes_
         fclose(File);
 
         FMemory::Memcpy(ByteArray.GetData(), Buffer, FileSize);
+        free(Buffer);
+        Buffer = nullptr;
     }
 
     else
@@ -526,6 +528,9 @@ bool UExtendedVarsBPLibrary::Read_File_From_Path_32(TArray<uint8>& Out_Bytes, FS
         fclose(File);
 
         FMemory::Memcpy(Out_Bytes.GetData(), Buffer, FileSize);
+
+        free(Buffer);
+        Buffer = nullptr;
     }
 
     else
