@@ -9,18 +9,6 @@ public class ExtendedVars : ModuleRules
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 
         bUseUnity = false;
-
-        PublicIncludePaths.AddRange(
-			new string[] {
-				// ... add public include paths required here ...
-			}
-			);
-					
-		PrivateIncludePaths.AddRange(
-			new string[] {
-				// ... add other private include paths required here ...
-			}
-			);	
 		
 		PublicDependencyModuleNames.AddRange(
 			new string[]
@@ -28,7 +16,10 @@ public class ExtendedVars : ModuleRules
 				"Core",
                 "RHI",				// FRHICommandListImmediate and Enqueue Rendering Commands
 				"RenderCore",		// FRHICommandListImmediate and Enqueue Rendering Commands
-			}
+				"UMG",
+                "MediaAssets",
+                "ImageWrapper",
+            }
 			);
 			
 		PrivateDependencyModuleNames.AddRange(
@@ -38,9 +29,6 @@ public class ExtendedVars : ModuleRules
 				"Engine",
 				"Slate",
 				"SlateCore",
-                "UMG",
-				"MediaAssets",
-                "ImageWrapper",
 			}
 			);
 		

@@ -3,9 +3,6 @@
 #include "ExtendedVarsBPLibrary.h"
 #include "ExtendedVars.h"
 
-// Custom Includes.
-#include "Extended_Includes.h"
-
 UExtendedVarsBPLibrary::UExtendedVarsBPLibrary(const FObjectInitializer& ObjectInitializer)
 : Super(ObjectInitializer)
 {
@@ -22,42 +19,42 @@ bool UExtendedVarsBPLibrary::Encode_Api_Old(TArray<uint8>& Encoded_Data, FString
 
     switch (CompressFormat)
     {
-    case EImageExtensions::Ext_None:
+        case EImageExtensions::Ext_None:
 
-        Out_Code = "You have to define a proper extension for encoding like JPG/PNG/BMP.";
-        return false;
+            Out_Code = "You have to define a proper extension for encoding like JPG/PNG/BMP.";
+            return false;
 
-    case EImageExtensions::Ext_BMP:
+        case EImageExtensions::Ext_BMP:
 
-        bUseRgba = false;
-        CompressedFormatString = "BMP";
-        ImageFormat = EImageFormat::BMP;
+            bUseRgba = false;
+            CompressedFormatString = "BMP";
+            ImageFormat = EImageFormat::BMP;
         
-        break;
+            break;
 
-    case EImageExtensions::EXT_JPEG:
+        case EImageExtensions::EXT_JPEG:
 
-        bUseRgba = true;
-        CompressedFormatString = "JPG";
-        ImageFormat = EImageFormat::JPEG;
+            bUseRgba = true;
+            CompressedFormatString = "JPG";
+            ImageFormat = EImageFormat::JPEG;
         
-        break;
+            break;
 
-    case EImageExtensions::EXT_PNG:
+        case EImageExtensions::EXT_PNG:
 
-        bUseRgba = true;
-        CompressedFormatString = "PNG";
-        ImageFormat = EImageFormat::PNG;
+            bUseRgba = true;
+            CompressedFormatString = "PNG";
+            ImageFormat = EImageFormat::PNG;
 
-        break;
+            break;
 
-    default:
+        default:
 
-        bUseRgba = true;
-        CompressedFormatString = "PNG";
-        ImageFormat = EImageFormat::PNG;
+            bUseRgba = true;
+            CompressedFormatString = "PNG";
+            ImageFormat = EImageFormat::PNG;
 
-        break;
+            break;
     }
 
     TSharedPtr<IImageWrapper> ImageWrapper = ImageWrapperModule.CreateImageWrapper(ImageFormat);
@@ -123,35 +120,34 @@ bool UExtendedVarsBPLibrary::Encode_Api_New(TArray<uint8>& Encoded_Data, FString
 
     switch (CompressFormat)
     {
+        case EImageExtensions::Ext_None:
 
-    case EImageExtensions::Ext_None:
+            Out_Code = "You have to define a proper extension for encoding like JPG/PNG/BMP.";
+            return false;
 
-        Out_Code = "You have to define a proper extension for encoding like JPG/PNG/BMP.";
-        return false;
+        case EImageExtensions::Ext_BMP:
 
-    case EImageExtensions::Ext_BMP:
-
-        CompressedFormatString = "BMP";
-        Format = EImageFormat::BMP;
-        break;
+            CompressedFormatString = "BMP";
+            Format = EImageFormat::BMP;
+            break;
     
-    case EImageExtensions::EXT_JPEG:
+        case EImageExtensions::EXT_JPEG:
 
-        CompressedFormatString = "JPG";
-        Format = EImageFormat::JPEG;
-        break;
+            CompressedFormatString = "JPG";
+            Format = EImageFormat::JPEG;
+            break;
    
-    case EImageExtensions::EXT_PNG:
+        case EImageExtensions::EXT_PNG:
 
-        CompressedFormatString = "PNG";
-        Format = EImageFormat::PNG;
-        break;
+            CompressedFormatString = "PNG";
+            Format = EImageFormat::PNG;
+            break;
    
-    default:
+        default:
 
-        CompressedFormatString = "PNG";
-        Format = EImageFormat::PNG;
-        break;
+            CompressedFormatString = "PNG";
+            Format = EImageFormat::PNG;
+            break;
     }
 
     TArray64<uint8> CompressedData;
@@ -193,43 +189,6 @@ URuntimeFont* UExtendedVarsBPLibrary::Runtime_Font_Load(TArray<uint8> In_Bytes, 
     RuntimeFont->FontName = FontName;
 
     return RuntimeFont;
-}
-
-void URuntimeFont::BeginDestroy()
-{
-    if (IsValid(this->Font_Face))
-    {
-        this->Font_Face->RemoveFromRoot();
-        bool bIsFontFaceDestroyed = this->Font_Face->ConditionalBeginDestroy();
-
-        if (bIsFontFaceDestroyed)
-        {
-            UE_LOG(LogTemp, Display, TEXT("FontFace destroyed : %s"), *this->FontName);
-        }
-
-        else
-        {
-            UE_LOG(LogTemp, Warning, TEXT("FontFace couldn't destroyed"));
-        }
-    }
-
-    if (IsValid(this->Font))
-    {
-        this->Font->RemoveFromRoot();
-        bool bIsFontDestroyed = this->Font->ConditionalBeginDestroy();
-
-        if (bIsFontDestroyed)
-        {
-            UE_LOG(LogTemp, Display, TEXT("Font destroyed : %s"), *this->FontName);
-        }
-
-        else
-        {
-            UE_LOG(LogTemp, Warning, TEXT("Font couldn't destroyed"));
-        }
-    }
-
-    Super::BeginDestroy();
 }
 
 // Sorters.
@@ -382,44 +341,6 @@ bool UExtendedVarsBPLibrary::Get_Folder_Contents(TArray<FFolderContents>& OutCon
         ErrorCode = "Directory doesn't exist.";
         return false;
     }
-
-    class FFindDirectories : public IPlatformFile::FDirectoryVisitor
-    {
-    public:
-
-        TArray<FFolderContents> Array_Contents;
-
-        FFindDirectories() {}
-        virtual bool Visit(const TCHAR* CharPath, bool bIsDirectory) override
-        {
-            if (bIsDirectory == true)
-            {
-                FFolderContents EachContent;
-
-                FString Path = FString(CharPath) + "/";
-                FPaths::NormalizeDirectoryName(Path);
-
-                EachContent.Path = Path;
-                EachContent.Name = FPaths::GetBaseFilename(Path);
-                EachContent.bIsFile = false;
-
-                Array_Contents.Add(EachContent);
-            }
-
-            else if (bIsDirectory == false)
-            {
-                FFolderContents EachContent;
-
-                EachContent.Path = CharPath;
-                EachContent.Name = FPaths::GetCleanFilename(CharPath);
-                EachContent.bIsFile = true;
-
-                Array_Contents.Add(EachContent);
-            }
-
-            return true;
-        }
-    };
 
     FFindDirectories GetFoldersVisitor;
     FPlatformFileManager::Get().GetPlatformFile().IterateDirectory(*InPath, GetFoldersVisitor);
@@ -1422,41 +1343,41 @@ bool UExtendedVarsBPLibrary::Export_T2D_File(FString& Out_Path, UTexture2D* Text
 
     switch (Extension)
     {
-    case EImageExtensions::Ext_None:
+        case EImageExtensions::Ext_None:
 
-        return false;
-
-    case EImageExtensions::Ext_BMP:
-
-        Out_Path = FileName + ".bmp";
-        
-        if (UExtendedVarsBPLibrary::Export_T2D_Colors(Array_Colors, Texture))
-        {
-            return FFileHelper::CreateBitmap(*Out_Path, Texture->GetSizeX(), Texture->GetSizeY(), Array_Colors.GetData(), NULL, &IFileManager::Get(), NULL, true);
-        }
-        
-        else
-        {
             return false;
-        }
 
-    case EImageExtensions::EXT_JPEG:
+        case EImageExtensions::Ext_BMP:
 
-        Out_Path = FileName + ".jpg";
-        FImageUtils::GetTexture2DSourceImage(Texture, ImageExporter);
-        return FImageUtils::SaveImageByExtension(*Out_Path, ImageExporter, 0);
-
-        break;
-
-    case EImageExtensions::EXT_PNG:
+            Out_Path = FileName + ".bmp";
         
-        Out_Path = FileName + ".png";
-        FImageUtils::GetTexture2DSourceImage(Texture, ImageExporter);
-        return FImageUtils::SaveImageByExtension(*Out_Path, ImageExporter, 0);
+            if (UExtendedVarsBPLibrary::Export_T2D_Colors(Array_Colors, Texture))
+            {
+                return FFileHelper::CreateBitmap(*Out_Path, Texture->GetSizeX(), Texture->GetSizeY(), Array_Colors.GetData(), NULL, &IFileManager::Get(), NULL, true);
+            }
+        
+            else
+            {
+                return false;
+            }
 
-    default:
+        case EImageExtensions::EXT_JPEG:
 
-        return false;
+            Out_Path = FileName + ".jpg";
+            FImageUtils::GetTexture2DSourceImage(Texture, ImageExporter);
+            return FImageUtils::SaveImageByExtension(*Out_Path, ImageExporter, 0);
+
+            break;
+
+        case EImageExtensions::EXT_PNG:
+        
+            Out_Path = FileName + ".png";
+            FImageUtils::GetTexture2DSourceImage(Texture, ImageExporter);
+            return FImageUtils::SaveImageByExtension(*Out_Path, ImageExporter, 0);
+
+        default:
+
+            return false;
     }
 }
 
@@ -1795,24 +1716,23 @@ void UExtendedVarsBPLibrary::LogString(int32 InLogLevel, FString Log)
 {
     switch (InLogLevel)
     {
+        case 0:
 
-    case 0:
-
-        UE_LOG(LogTemp, Display, TEXT("%s"), *FString(Log));
-        return;
+            UE_LOG(LogTemp, Display, TEXT("%s"), *FString(Log));
+            return;
     
-    case 1:
+        case 1:
         
-        UE_LOG(LogTemp, Warning, TEXT("%s"), *FString(Log));
-        return;
+            UE_LOG(LogTemp, Warning, TEXT("%s"), *FString(Log));
+            return;
     
-    case 2:
+        case 2:
 
-        UE_LOG(LogTemp, Error, TEXT("%s"), *FString(Log));
-        return;
+            UE_LOG(LogTemp, Error, TEXT("%s"), *FString(Log));
+            return;
 
-    default:
-        break;
+        default:
+            break;
     }
 }
 

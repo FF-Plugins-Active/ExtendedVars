@@ -1,5 +1,11 @@
 #pragma once
 
+// Custom Includes.
+#include "Extended_Enums.h"
+
+// UE Font Includes.
+#include "Engine/FontFace.h"
+
 // UE Math Includes.
 #include "Algo/Reverse.h"                       // Reverse array
 #include "Kismet/KismetMathLibrary.h"
