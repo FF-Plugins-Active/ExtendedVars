@@ -129,19 +129,19 @@ class UExtendedVarsBPLibrary : public UBlueprintFunctionLibrary
 
 	// Sorters.
 
-	UFUNCTION(BlueprintPure, meta = (DisplayName = "Sort Strings", ToolTip = "Description.", Keywords = "string, fstring, ascending, descending, sort"), Category = "Frozen Forest|Extended Variables|Sorters")
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Sort Strings", ToolTip = "", Keywords = "string, fstring, ascending, descending, sort"), Category = "Frozen Forest|Extended Variables|Sorters")
 	static EXTENDEDVARS_API TArray<FString> Sort_String(TArray<FString> TargetArray, bool bIsDescending);
 
-	UFUNCTION(BlueprintPure, meta = (DisplayName = "Sort Integers", ToolTip = "Description.", Keywords = "sort, int32, ascending, descending"), Category = "Frozen Forest|Extended Variables|Sorters")
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Sort Integers", ToolTip = "", Keywords = "sort, int32, ascending, descending"), Category = "Frozen Forest|Extended Variables|Sorters")
 	static EXTENDEDVARS_API TArray<int32> Sort_Int32(TArray<int32> TargetArray, bool bIsDescending);
 
-	UFUNCTION(BlueprintPure, meta = (DisplayName = "Sort Floats", ToolTip = "Description.", Keywords = "sort, float, ascending, descending"), Category = "Frozen Forest|Extended Variables|Sorters")
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Sort Floats", ToolTip = ".", Keywords = "sort, float, double, ascending, descending"), Category = "Frozen Forest|Extended Variables|Sorters")
 	static EXTENDEDVARS_API TArray<float> Sort_Float(TArray<float> TargetArray, bool bIsDescending);
 
-	UFUNCTION(BlueprintPure, meta = (DisplayName = "Sort Floats", ToolTip = "Description.", Keywords = "sort, float, ascending, descending"), Category = "Frozen Forest|Extended Variables|Sorters")
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Sort Double", ToolTip = ".", Keywords = "sort, float, double, ascending, descending"), Category = "Frozen Forest|Extended Variables|Sorters")
 	static EXTENDEDVARS_API TArray<double> Sort_Double(TArray<double> TargetArray, bool bIsDescending);
 
-	UFUNCTION(BlueprintPure, meta = (DisplayName = "Sort Times", ToolTip = "Description.", Keywords = "sort, times, ascending, descending"), Category = "Frozen Forest|Extended Variables|Sorters")
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Sort Times", ToolTip = "", Keywords = "sort, times, ascending, descending"), Category = "Frozen Forest|Extended Variables|Sorters")
 	static EXTENDEDVARS_API TArray<FDateTime> Sort_Time(TArray<FDateTime> TargetArray, bool bIsDescending);
 
 	// Read Group.
@@ -149,10 +149,10 @@ class UExtendedVarsBPLibrary : public UBlueprintFunctionLibrary
 	UFUNCTION(BlueprintPure, meta = (DisplayName = "Android Path Helper", ToolTip = "This node automatically gives Internal Storage absolute path. So, you just need to define sub-folder and file. Example: Download/sample.pdf", Keywords = "android, ios, mobile, folder, file, path, helper, absolute"), Category = "Frozen Forest|Extended Variables|Read")
 	static EXTENDEDVARS_API FString Android_Path_Helper(FString In_FileName);
 
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Get Folder Contents", ToolTip = "Description.", Keywords = "explorer, load, file, folder, content"), Category = "Frozen Forest|Extended Variables|Read")
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Get Folder Contents", ToolTip = "", Keywords = "explorer, load, file, folder, content"), Category = "Frozen Forest|Extended Variables|Read")
 	static EXTENDEDVARS_API bool Get_Folder_Contents(TArray<FFolderContents>& OutContents, FString& ErrorCode, FString InPath);
 
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Search In Folder", ToolTip = "Description.", Keywords = "explorer, load, file, folder, content"), Category = "Frozen Forest|Extended Variables|Read")
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Search In Folder", ToolTip = "", Keywords = "explorer, load, file, folder, content"), Category = "Frozen Forest|Extended Variables|Read")
 	static EXTENDEDVARS_API void Search_In_Folder(FDelegateFolderContents DelegateFolderContents, FString InPath, FString InSearch, bool bSearchExact);
 
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Read File from Path (64 Bit)", ToolTip = "You need to use absolute path.", Keywords = "read, load, path, bytes, import, file"), Category = "Frozen Forest|Extended Variables|Read")
@@ -217,7 +217,7 @@ class UExtendedVarsBPLibrary : public UBlueprintFunctionLibrary
 
 	// String Group.
 
-	UFUNCTION(BlueprintPure, meta = (DisplayName = "FDateTime To String", ToolTip = "Description.", Keywords = "string, fstring, parse, date, time, convert, to"), Category = "Frozen Forest|Extended Variables|String")
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "FDateTime To String", ToolTip = "", Keywords = "string, fstring, parse, date, time, convert, to"), Category = "Frozen Forest|Extended Variables|String")
 	static EXTENDEDVARS_API FString FDateTime_To_String(FDateTime In_Time, FString CustomFormat, bool bUseIso8601 = true);
 
 	UFUNCTION(BlueprintPure, meta = (DisplayName = "Int64 To String", Keywords = "string, fstring, convert, int64"), Category = "Frozen Forest|Extended Variables|String")
@@ -263,18 +263,18 @@ class UExtendedVarsBPLibrary : public UBlueprintFunctionLibrary
 
 	// Float/Double Group.
 
-	UFUNCTION(BlueprintPure, meta = (DisplayName = "Float Precision", ToolTip = "Description.", Keywords = "float, get, precision"), Category = "Frozen Forest|Extended Variables|Float")
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Float Precision", ToolTip = "", Keywords = "float, get, precision"), Category = "Frozen Forest|Extended Variables|Float")
 	static EXTENDEDVARS_API float Float_Precision(float TargetFloat, int32 Precision);
 	
-	UFUNCTION(BlueprintPure, meta = (DisplayName = "Get Fraction Count", ToolTip = "Description.", Keywords = "float, get, fraction, count"), Category = "Frozen Forest|Extended Variables|Float")
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Get Fraction Count", ToolTip = "", Keywords = "float, get, fraction, count"), Category = "Frozen Forest|Extended Variables|Float")
 	static EXTENDEDVARS_API int32 Float_Fraction_Count(float TargetFloat);
 
-	UFUNCTION(BlueprintPure, meta = (DisplayName = "Round Next Float", ToolTip = "Description.", Keywords = "float, round, next"), Category = "Frozen Forest|Extended Variables|Float")
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Round Next Float", ToolTip = "", Keywords = "float, round, next"), Category = "Frozen Forest|Extended Variables|Float")
 	static EXTENDEDVARS_API float Float_Round_Next(float TargetFloat, double Decimal);
 	
 	// Time Group.
 
-	UFUNCTION(BlueprintPure, meta = (DisplayName = "Time Counter To FDateTime", ToolTip = "Description.", Keywords = "string, fstring, parse, date, time, convert, to"), Category = "Frozen Forest|Extended Variables|Time")
+	UFUNCTION(BlueprintPure, meta = (DisplayName = "Time Counter To FDateTime", ToolTip = "", Keywords = "string, fstring, parse, date, time, convert, to"), Category = "Frozen Forest|Extended Variables|Time")
 	static EXTENDEDVARS_API bool Time_Counter_To_FDateTime(FDateTime& Out_Time, FString In_Time, FString Delimiter, EStringToDate ConvertType);
 
 	// Render Group.
