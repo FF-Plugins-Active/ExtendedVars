@@ -621,7 +621,7 @@ bool UExtendedVarsBPLibrary::Bytes_To_Object(UBytesObject_64*& Out_Bytes_Object,
     }
 
     TArray64<uint8> ByteArray;
-    ByteArray.SetNum(In_Bytes.Num(), true);
+    ByteArray.SetNum(In_Bytes.Num(), EAllowShrinking::Yes);
     FMemory::Memcpy(ByteArray.GetData(), In_Bytes.GetData(), In_Bytes.GetAllocatedSize());
 
     UBytesObject_64* BytesObject_64 = NewObject<UBytesObject_64>();
