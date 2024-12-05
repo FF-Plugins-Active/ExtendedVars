@@ -448,7 +448,7 @@ bool UExtendedVarsBPLibrary::Read_File_From_Path_64(UBytesObject_64*& Out_Bytes_
 #endif // _WIN64
 
         fseek(File, 0L, SEEK_END);
-        long FileSize = ftell(File);
+        const long FileSize = ftell(File);
         fseek(File, 0L, SEEK_SET);
 
         if (FileSize == 0)
@@ -459,9 +459,11 @@ bool UExtendedVarsBPLibrary::Read_File_From_Path_64(UBytesObject_64*& Out_Bytes_
 
         uint8* Buffer = (uint8*)malloc(FileSize);
         fread(Buffer, sizeof(uint8), FileSize, File);
-        fclose(File);
 
+        ByteArray.SetNum(FileSize);
         FMemory::Memcpy(ByteArray.GetData(), Buffer, FileSize);
+        
+        fclose(File);
         free(Buffer);
         Buffer = nullptr;
     }
@@ -470,7 +472,7 @@ bool UExtendedVarsBPLibrary::Read_File_From_Path_64(UBytesObject_64*& Out_Bytes_
     {
         FFileHelper::LoadFileToArray(ByteArray, *Path, FILEREAD_AllowWrite);
 
-        if (ByteArray.Num() == 0)
+        if (ByteArray.IsEmpty())
         {
             return false;
         }
@@ -497,6 +499,8 @@ bool UExtendedVarsBPLibrary::Read_File_From_Path_32(TArray<uint8>& Out_Bytes, FS
         return false;
     }
 
+    TArray<uint8> ByteArray;
+
     if (bUseLowLevel)
     {
         FPaths::MakePlatformFilename(Path);
@@ -514,7 +518,7 @@ bool UExtendedVarsBPLibrary::Read_File_From_Path_32(TArray<uint8>& Out_Bytes, FS
 #endif // _WIN64
 
         fseek(File, 0L, SEEK_END);
-        long FileSize = ftell(File);
+        const long FileSize = ftell(File);
         fseek(File, 0L, SEEK_SET);
 
         if (FileSize == 0)
@@ -525,25 +529,33 @@ bool UExtendedVarsBPLibrary::Read_File_From_Path_32(TArray<uint8>& Out_Bytes, FS
 
         uint8* Buffer = (uint8*)malloc(FileSize);
         fread(Buffer, sizeof(uint8), FileSize, File);
+        
+        ByteArray.SetNum(FileSize);
+        FMemory::Memcpy(ByteArray.GetData(), Buffer, FileSize);
+       
         fclose(File);
-
-        FMemory::Memcpy(Out_Bytes.GetData(), Buffer, FileSize);
-
         free(Buffer);
         Buffer = nullptr;
+
+        Out_Bytes = ByteArray;
+        return true;
     }
 
     else
     {
-        FFileHelper::LoadFileToArray(Out_Bytes, *Path, FILEREAD_AllowWrite);
+        FFileHelper::LoadFileToArray(ByteArray, *Path, FILEREAD_AllowWrite);
 
-        if (Out_Bytes.Num() == 0)
+        if (ByteArray.IsEmpty())
         {
             return false;
         }
-    }
 
-    return true;
+        else
+        {
+            Out_Bytes = ByteArray;
+            return true;
+        }
+    }
 }
 
 bool UExtendedVarsBPLibrary::Read_Text_From_Path(FString& Out_String, FString In_Path)
